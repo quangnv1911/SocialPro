@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage(), e);
         ApiResponse<?> apiResponse = new ApiResponse<>();
         apiResponse.setMessage(e.getMessage());
-        apiResponse.setCode(400);
+        apiResponse.setStatus(400);
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = exception.getErrorCode();
 
         ApiResponse<?> apiResponse = new ApiResponse<>();
-        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setStatus(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(errorCode.getStatusCode())
                 .body(ApiResponse.builder()
-                        .code(errorCode.getCode())
+                        .status(errorCode.getCode())
                         .message(errorCode.getMessage())
                         .build());
     }
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse();
 
-        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setStatus(errorCode.getCode());
         apiResponse.setMessage(
                 Objects.nonNull(attributes)
                         ? mapAttribute(errorCode.getMessage(), attributes)
