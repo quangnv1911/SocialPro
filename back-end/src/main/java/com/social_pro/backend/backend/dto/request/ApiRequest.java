@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiRequest <T>{
+public class ApiRequest<T> {
+    private T data;
     @Builder.Default
-    private int code = 1000;
-
-    private String message;
-    private T result;
+    private long timestamp = Instant.now().getEpochSecond();
 }

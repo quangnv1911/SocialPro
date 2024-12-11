@@ -3,8 +3,11 @@ server:
 spring:
   application:
     name: back-end
-  profiles:
-    active: dev
+
+  security:
+    user:
+      name: user
+      password: 123456
   datasource:
     url: jdbc:postgresql://${POSTGRES_DB_SERVER_ADDRESS:localhost}:${POSTGRES_DB_SERVER_PORT:5432}/
     username: ${POSTGRES_USER:postgres}
@@ -23,11 +26,11 @@ spring:
 #    org.springframework: INFO
 #    com.farukgenc.boilerplate.springboot: INFO
 #
-#jwt:
-#  secretKey: secret
-#  issuer: www.farukgenc.com
-#  expirationMinute: 10
-#
+jwt:
+  secretKey: secret
+  issuer: www.farukgenc.com
+  expirationMinute: 10
+
 springdoc:
   api-docs:
     path: /api-docs
@@ -42,6 +45,9 @@ springdoc:
   packages-to-scan: com.social_pro.backend.backend.controller
   paths-to-match:
     - /api/**
+
+cors:
+  max-age: 3600
 
 openapi:
   info:
@@ -59,3 +65,4 @@ openapi:
       description: "Local Development Server"
     - url: "https://api.example.com"
       description: "Production Server"
+
