@@ -1,0 +1,136 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: social_pro_be
+  security:
+    user:
+      name: user
+      password: 123456
+    roles: ACTUATOR
+  datasource:
+    url: jdbc:mysql://localhost:3306/SocialPro
+    username: root
+    password: 123456
+    hikari:
+      pool-name: SpringBootBoilerplateHikariPool
+  flyway:
+    url: jdbc:mysql://localhost:3306/SocialPro
+    user: root
+    password: 123456
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  jta:
+    enabled: false
+  logstash:
+    host: localhost
+    port: 5000
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+    properties:
+      org:
+        quartz:
+          instanceName: MyScheduler
+        threadPool:
+          threadCount: 10
+
+logging:
+  logstash:
+    host: localhost
+    port: 5000
+
+jwt:
+  secret: StudentCateSystemJwtSecretKeyHS256
+  issuer: StudentCareSystemIssuer
+  audience: StudentCareSystemAudience
+  access-token-expiration: 300000
+  refresh-token-expiration: 999999999
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: method
+    doc-expansion: none
+    default-models-expand-depth: -1
+  packages-to-scan: com.social_pro.backend.backend.controller
+  paths-to-match:
+    - /api/**
+
+cors:
+  max-age: 3600
+  allowed-origins:
+    - "http://example.com"
+    - "http://another-example.com"
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+
+openapi:
+  info:
+    title: "My API Documentation"
+    version: 1.0
+    description: "This is a sample API documentation for My Application"
+    contact:
+      name: "Nguyễn Vinh Quang"
+      email: "quangnv1911@gmail.com"
+    license:
+      name: Apache 2.0
+      url: http://springdoc.org
+  servers:
+    - url: "http://localhost:8080"
+      description: "Local Development Server"
+    - url: "https://api.example.com"
+      description: "Production Server"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Kích hoạt tất cả các endpoint
+  endpoint:
+    health:
+      show-details: always # Hiển thị chi tiết trạng thái "health"
+      probes:
+        enabled: true
+  health:
+    elasticsearch:
+      enabled: false
+info:
+  app:
+    name: Spring Actuator Demo
+    description: Demonstrating Spring Actuator with YAML configuration
+    version: 1.0.0
+
+# Telegram
+
+telegram:
+  bot:
+    token: dfdsfs
+  group:
+    chatId: dfdsfdsf
+# Keydb
+keydb:
+  host: localhost
+  port: 6400
+  ssl: false
