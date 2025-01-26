@@ -1,7 +1,7 @@
 <configuration>
     <!-- Spring Boot Property Support -->
-    <springProperty name="LOGBACK_URL" source="logging.logstash.host"/>
-    <springProperty name="LOGBACK_PORT" source="logging.logstash.port"/>
+    <springProperty name="LOGBACK_HOST" source="spring.logstash.host"/>
+    <springProperty name="LOGBACK_PORT" source="spring.logstash.port"/>
 
 
     <!-- Appender ghi log ra console -->
@@ -25,7 +25,7 @@
 
     <!-- Appender gửi log tới Logstash -->
     <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>localhost:5044</destination>
+        <destination>${LOGBACK_HOST}:${LOGBACK_PORT}</destination>
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <mdc/>

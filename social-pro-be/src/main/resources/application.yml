@@ -1,25 +1,25 @@
 server:
-  port: 8080
+  port: ${SPRING_PORT}
 
 spring:
   application:
-    name: social_pro_be
+    name: ${SPRING_APPLICATION_NAME}
   security:
     user:
-      name: user
-      password: 123456
-    roles: ACTUATOR
+      name: ${SPRING_SECURITY_USER_NAME}
+      password: ${SPRING_SECURITY_USER_PASSWORD}
+    roles: ${SPRING_SECURITY_ROLES}
   datasource:
-    url: jdbc:mysql://localhost:3306/SocialPro
-    username: root
-    password: 123456
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_SECURITY_ROLES}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
-      pool-name: SpringBootBoilerplateHikariPool
+      pool-name: ${SPRING_DATASOURCE_HIKARI_POOL_NAME}
   flyway:
-    url: jdbc:mysql://localhost:3306/SocialPro
-    user: root
-    password: 123456
-    locations: classpath:db/migration
+    url: ${SPRING_FLYWAY_URL}
+    user: ${SPRING_FLYWAY_USER}
+    password: ${SPRING_FLYWAY_PASSWORD}
+    locations: ${SPRING_FLYWAY_LOCATION}
     baseline-on-migrate: true
     enabled: true
   jpa:
@@ -33,8 +33,8 @@ spring:
   jta:
     enabled: false
   logstash:
-    host: localhost
-    port: 5000
+    host: ${SPRING_LOGSTASH_HOST}
+    port: ${SPRING_LOGSTASH_PORT}
   quartz:
     job-store-type: jdbc
     jdbc:
@@ -42,72 +42,45 @@ spring:
     properties:
       org:
         quartz:
-          instanceName: MyScheduler
+          instanceName: ${SPRING_QUARTZ_INSTANCE_NAME}
         threadPool:
-          threadCount: 10
-
-logging:
-  logstash:
-    host: localhost
-    port: 5000
+          threadCount: ${SPRING_QUARTZ_THREAD_COUNT}
 
 jwt:
-  secret: StudentCateSystemJwtSecretKeyHS256
-  issuer: StudentCareSystemIssuer
-  audience: StudentCareSystemAudience
-  access-token-expiration: 300000
-  refresh-token-expiration: 999999999
-
-
-springdoc:
-  api-docs:
-    path: /api-docs
-    enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    tags-sorter: alpha
-    operations-sorter: method
-    doc-expansion: none
-    default-models-expand-depth: -1
-  packages-to-scan: com.social_pro.backend.backend.controller
-  paths-to-match:
-    - /api/**
+  secret: ${JWT_SECRET}
+  issuer: ${JWT_ISSUER}
+  audience: ${JWT_AUDIENCE}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
 
 cors:
   max-age: 3600
-  allowed-origins:
-    - "http://example.com"
-    - "http://another-example.com"
-  allowed-methods:
-    - GET
-    - POST
-    - PUT
-    - DELETE
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  allowed-methods: ${CORS_ALLOWED_METHODS}
 
 openapi:
   info:
-    title: "My API Documentation"
-    version: 1.0
-    description: "This is a sample API documentation for My Application"
+    title:  ${OPENAPI_TITLE}
+    version:  ${OPENAPI_VERSION}
+    description: ${OPENAPI_DESCRIPTION}
     contact:
-      name: "Nguyễn Vinh Quang"
-      email: "quangnv1911@gmail.com"
+      name:  ${OPENAPI_CONTACT_NAME}
+      email:  ${OPENAPI_CONTACT_EMAIL}
     license:
       name: Apache 2.0
       url: http://springdoc.org
   servers:
-    - url: "http://localhost:8080"
-      description: "Local Development Server"
-    - url: "https://api.example.com"
-      description: "Production Server"
+    - url:  ${OPENAPI_SERVERS_URL}
+      description:  ${OPENAPI_SERVERS_DESCRIPTION}
+    - url:  ${OPENAPI_SERVERS_URL}
+      description:  ${OPENAPI_SERVERS_DESCRIPTION}
 
 # Actuator
 management:
   endpoints:
     web:
       exposure:
-        include: "*" # Kích hoạt tất cả các endpoint
+        include: ${ACTUATOR_ENDPOINT_EXPOSURE_INCLUDE}
   endpoint:
     health:
       show-details: always # Hiển thị chi tiết trạng thái "health"
@@ -118,19 +91,19 @@ management:
       enabled: false
 info:
   app:
-    name: Spring Actuator Demo
-    description: Demonstrating Spring Actuator with YAML configuration
-    version: 1.0.0
+    name: ${ACTUATOR_INFO_APP_NAME}
+    description: ${ACTUATOR_INFO_APP_DESCRIPTION}
+    version: ${ACTUATOR_INFO_APP_VERSION}
 
 # Telegram
 
 telegram:
   bot:
-    token: dfdsfs
+    token: ${TELEGRAM_BOT_TOKEN}
   group:
-    chatId: dfdsfdsf
+    chatId: ${TELEGRAM_BOT_GROUP}
 # Keydb
 keydb:
-  host: localhost
-  port: 6400
-  ssl: false
+  host: ${KEYDB_HOST}
+  port: ${KEYDB_PORT}
+  ssl: ${KEYDB_SSL}
