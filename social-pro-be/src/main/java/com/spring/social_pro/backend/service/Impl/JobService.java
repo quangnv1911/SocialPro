@@ -6,6 +6,7 @@ import com.spring.social_pro.backend.dto.response.job.JobResponseDto;
 import com.spring.social_pro.backend.mapper.JobMapper;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Slf4j
 public class JobService {
     @Autowired
     Scheduler scheduler;

@@ -2,83 +2,69 @@ pipeline {
     agent any
 
     environment {
-        SOCIAL_PRO_CLIENT = "quangnv1911/social-pro-client"
-        SOCIAL_PRO_ADMIN = "your-dockerhub-user/spring-app:dev"
-        SOCIAL_PRO_BE = "your-dockerhub-user/social-pro-backend:dev"
-        REACT_IMAGE = "quangnv1911/social-pro-client"
-        SPRING_IMAGE = "your-dockerhub-user/spring-app:dev"
-        SONARQUBE_SERVER = "SonarQube" // Name of your SonarQube server configured in Jenkins
+        REGISTRY = credentials('DOCKER_REGISTRY')
+        DOCKER_USER = credentials('DOCKER_USER')
+        DOCKER_PASS = credentials('DOCKER_PASS')
+        DEPLOY_PATH_STAGING = credentials('DEPLOY_PATH_STAGING')
+        DEPLOY_PATH_PRODUCTION = credentials('DEPLOY_PATH_PRODUCTION')
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                git branch: 'dev', url: 'https://github.com/your-repo.git'
+                git branch: env.BRANCH_NAME, url: 'https://github.com/quangnv1911/SocialPro.git'
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Determine Environment') {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQube') { // SonarQube environment defined in Jenkins
-                        sh 'mvn clean verify sonar:sonar'
+                    if (env.BRANCH_NAME == 'dev') {
+                        env.DEPLOY_PATH = DEPLOY_PATH_STAGING
+                        env.DOCKER_COMPOSE_FILE = "docker-compose.staging.yml"
+                    } else if (env.BRANCH_NAME == 'master') {
+                        env.DEPLOY_PATH = DEPLOY_PATH_PRODUCTION
+                        env.DOCKER_COMPOSE_FILE = "docker-compose.production.yml"
                     }
                 }
             }
         }
 
-        stage('Run Tests') {
+        stage('Login to Docker Registry') {
             steps {
-                script {
-                    sh 'mvn test' // Replace with appropriate test command if not using Maven
-                }
+                sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $REGISTRY"
             }
         }
 
-        stage('Build Docker Images') {
-            when {
-                expression {
-                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
-                }
-            }
+        stage('Build & Push Docker Images') {
             steps {
                 script {
-                    sh 'docker compose build'
-                }
-            }
-        }
+                    def services = ["social-pro-client", "social-pro-admin", "social-pro-be", "email-proxy"]
 
-        stage('Push Docker Images') {
-            when {
-                expression {
-                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
-                }
-            }
-            steps {
-                script {
-                    withDockerRegistry([credentialsId: 'dockerhub-credentials', url: '']) {
-                        sh 'docker push $REACT_IMAGE'
-                        sh 'docker push $SPRING_IMAGE'
-                        sh 'docker push $SOCIAL_PRO_BE'
+                    services.each { service ->
+                        sh """
+                            docker build -t $REGISTRY/$service:${env.BRANCH_NAME} -f $service/Dockerfile $service
+                            docker push $REGISTRY/$service:${env.BRANCH_NAME}
+                        """
                     }
                 }
             }
         }
 
-        stage('Deploy with Docker Compose') {
-            when {
-                expression {
-                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
-                }
-            }
+        stage('Deploy to Server') {
             steps {
                 script {
-                    sh '''
-                    docker-compose down
-                    docker-compose up -d
-                    '''
+                    if (env.DEPLOY_PATH) {
+                        sh "docker-compose -f $DOCKER_COMPOSE_FILE up -d --remove-orphans" 
+                    }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo "CI/CD Pipeline hoàn tất cho branch: ${env.BRANCH_NAME}"
         }
     }
 }
