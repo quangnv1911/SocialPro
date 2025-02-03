@@ -9,51 +9,38 @@ pipeline {
         DEPLOY_PATH_PRODUCTION = credentials('DEPLOY_PATH_PRODUCTION')
     }
 
-    parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch để build')
-    }
-
     stages {
-        stage('Prepare') {
-            steps {
-                script {
-                    // Xác định branch từ webhook hoặc Jenkins parameter
-                    env.ACTUAL_BRANCH = env.BRANCH_NAME ?: params.BRANCH_NAME ?: DEFAULT_BRANCH
-                    echo "🔍 Branch nhận từ Webhook/Parameter: ${env.ACTUAL_BRANCH}"
-                }
-            }
-        }
 
         stage('Clone Repository') {
             steps {
                 script {
-                    echo "📂 Cloning repository on branch: ${env.ACTUAL_BRANCH}"
+                    echo "📂 Cloning repository on branch: ${env.BRANCH_NAME}"
                 }
-                git branch: env.ACTUAL_BRANCH, url: 'https://github.com/quangnv1911/SocialPro.git'
+                git branch: env.BRANCH_NAME, url: 'https://github.com/quangnv1911/SocialPro.git'
             }
         }
 
         stage('Determine Environment') {
             steps {
                 script {
-                    if (env.ACTUAL_BRANCH == 'dev') {
+                    if (env.BRANCH_NAME == 'dev') {
                         env.DEPLOY_PATH = "${env.DEPLOY_PATH_STAGING}"
                         env.DOCKER_COMPOSE_FILE = "docker-compose.staging.yml"
-                    } else if (env.ACTUAL_BRANCH == 'main') {
+                    } else if (env.BRANCH_NAME == 'main') {
                         env.DEPLOY_PATH = "${env.DEPLOY_PATH_PRODUCTION}"
                         env.DOCKER_COMPOSE_FILE = "docker-compose.production.yml"
-                    } else {
-                        echo "⚠️ Không xác định được môi trường. Sử dụng branch khác: ${env.ACTUAL_BRANCH}"
-                    }
-                    echo "🚀 Deploy Path: ${env.DEPLOY_PATH}"
-                    echo "🛠 Docker Compose File: ${env.DOCKER_COMPOSE_FILE}"
+                    } 
                 }
             }
         }
 
         stage('Login to Docker Registry') {
             steps {
-                sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $REGISTRY"
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $REGISTRY
+                    '''
+                }
             }
         }
 
