@@ -22,7 +22,7 @@ pipeline {
                     if (env.BRANCH_NAME == 'dev') {
                         env.DEPLOY_PATH = DEPLOY_PATH_STAGING
                         env.DOCKER_COMPOSE_FILE = "docker-compose.staging.yml"
-                    } else if (env.BRANCH_NAME == 'master') {
+                    } else if (env.BRANCH_NAME == 'main') {
                         env.DEPLOY_PATH = DEPLOY_PATH_PRODUCTION
                         env.DOCKER_COMPOSE_FILE = "docker-compose.production.yml"
                     }
