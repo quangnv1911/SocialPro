@@ -1,0 +1,109 @@
+server:
+  port: ${SPRING_PORT}
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME}
+  security:
+    user:
+      name: ${SPRING_SECURITY_USER_NAME}
+      password: ${SPRING_SECURITY_USER_PASSWORD}
+    roles: ${SPRING_SECURITY_ROLES}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_SECURITY_ROLES}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      pool-name: ${SPRING_DATASOURCE_HIKARI_POOL_NAME}
+  flyway:
+    url: ${SPRING_FLYWAY_URL}
+    user: ${SPRING_FLYWAY_USER}
+    password: ${SPRING_FLYWAY_PASSWORD}
+    locations: ${SPRING_FLYWAY_LOCATION}
+    baseline-on-migrate: true
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  jta:
+    enabled: false
+  logstash:
+    host: ${SPRING_LOGSTASH_HOST}
+    port: ${SPRING_LOGSTASH_PORT}
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+    properties:
+      org:
+        quartz:
+          instanceName: ${SPRING_QUARTZ_INSTANCE_NAME}
+        threadPool:
+          threadCount: ${SPRING_QUARTZ_THREAD_COUNT}
+
+jwt:
+  secret: ${JWT_SECRET}
+  issuer: ${JWT_ISSUER}
+  audience: ${JWT_AUDIENCE}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+cors:
+  max-age: 3600
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  allowed-methods: ${CORS_ALLOWED_METHODS}
+
+openapi:
+  info:
+    title:  ${OPENAPI_TITLE}
+    version:  ${OPENAPI_VERSION}
+    description: ${OPENAPI_DESCRIPTION}
+    contact:
+      name:  ${OPENAPI_CONTACT_NAME}
+      email:  ${OPENAPI_CONTACT_EMAIL}
+    license:
+      name: Apache 2.0
+      url: http://springdoc.org
+  servers:
+    - url:  ${OPENAPI_SERVERS_URL}
+      description:  ${OPENAPI_SERVERS_DESCRIPTION}
+    - url:  ${OPENAPI_SERVERS_URL}
+      description:  ${OPENAPI_SERVERS_DESCRIPTION}
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${ACTUATOR_ENDPOINT_EXPOSURE_INCLUDE}
+  endpoint:
+    health:
+      show-details: always # Hiển thị chi tiết trạng thái "health"
+      probes:
+        enabled: true
+  health:
+    elasticsearch:
+      enabled: false
+info:
+  app:
+    name: ${ACTUATOR_INFO_APP_NAME}
+    description: ${ACTUATOR_INFO_APP_DESCRIPTION}
+    version: ${ACTUATOR_INFO_APP_VERSION}
+
+# Telegram
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN}
+  group:
+    chatId: ${TELEGRAM_BOT_GROUP}
+# Keydb
+keydb:
+  host: ${KEYDB_HOST}
+  port: ${KEYDB_PORT}
+  ssl: ${KEYDB_SSL}
