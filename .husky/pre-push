@@ -1,0 +1,19 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Nạp biến môi trường từ file .env
+if [ -f .env ]; then
+  export $(grep -v '^#' .env | xargs)
+fi
+
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH_NAME" = "$BRANCH_TRIGGER" ]; then
+  echo "Triggering Jenkins webhook for branch: $BRANCH_NAME..."
+  curl -X POST "$JENKINS_URL?token=$JENKINS_TOKEN&branch=$BRANCH_NAME" || {
+    echo "Failed to trigger Jenkins webhook."
+    exit 1
+  }
+else
+  echo "Skipping Jenkins webhook for branch: $BRANCH_NAME."
+fi
