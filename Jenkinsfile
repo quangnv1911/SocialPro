@@ -10,6 +10,10 @@ pipeline {
     }
 
     stages {
+        script {
+            echo "🔍 Branch từ Webhook: ${env.BRANCH_NAME ?: 'Không có giá trị'}"
+        }
+        
         stage('Clone Repository') {
             steps {
                 git branch: env.BRANCH_NAME, url: 'https://github.com/quangnv1911/SocialPro.git'
