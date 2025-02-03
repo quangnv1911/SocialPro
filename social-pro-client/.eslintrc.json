@@ -1,0 +1,9 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-console": ["error", { "allow": ["warn", "error", "info"] }],
+    "no-unused-vars": "error",
+    "semi": ["error", "always"],  // Rule 1: Yêu cầu dấu chấm phẩy ở cuối mỗi câu lệnh
+    "quotes": ["error", "single"]  // Rule 2: Yêu cầu dùng dấu nháy đơn thay vì nháy kép
+  }
+}

@@ -1,0 +1,54 @@
+##### Docker compose file for production #####
+services: 
+  social-pro-client:
+    image: quangnv1911/social-pro-client
+    build:
+      context: ./social-pro-client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production  
+
+  social-pro-admin:
+    image: quangnv1911/social-pro-admin
+    build:
+      context: ./social-pro-admin
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production   
+
+
+  social-pro-be:
+    image: quangnv1911/social-pro-be
+    build:
+      context: ./social-pro-be
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - social-pro-network
+    env_file:
+      - .env.production   
+
+  email-proxy:
+    image: quangnv1911/email-proxy
+    container_name: email-proxy
+    build:
+      context: ./email-proxy
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    
+
+
+networks:
+  social-pro-network:
+    driver: bridge
+
+volumes:
+  social-pro-data:
+    name: social-pro-data
