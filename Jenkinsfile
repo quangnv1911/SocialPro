@@ -37,8 +37,9 @@ pipeline {
         stage('Login to Docker Registry') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    // Sử dụng shell để login mà không làm lộ thông tin qua Groovy string interpolation
-                    sh 'docker login -u $DOCKER_USER --password-stdin $REGISTRY <<< "$DOCKER_PASS"'
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin $REGISTRY
+                    '''
                 }
             }
         }
