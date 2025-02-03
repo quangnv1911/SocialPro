@@ -1,4 +1,4 @@
-##### Docker compose file #####
+##### Docker compose file for production #####
 services: 
   social-pro-client:
     image: quangnv1911/social-pro-client
@@ -8,7 +8,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env  
+      - .env.staging  
 
   social-pro-admin:
     image: quangnv1911/social-pro-admin
@@ -18,7 +18,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env  
+      - .env.staging   
 
 
   social-pro-be:
@@ -26,17 +26,13 @@ services:
     build:
       context: ./social-pro-be
       dockerfile: Dockerfile
-    volumes:
-      - ~/.aspnet/https:/https:ro
-      # The following volume is used to store the DataProtection-Keys
-      - aspnet-api-data:/app/.aspnet/DataProtection-Keys
     ports:
       - "8080:8080"
     restart: always
     networks:
-      - backend-networ
+      - social-pro-network
     env_file:
-      - .env  
+      - .env.staging   
 
   email-proxy:
     image: quangnv1911/email-proxy
@@ -50,9 +46,9 @@ services:
 
 
 networks:
-  backend-network:
+  social-pro-network:
     driver: bridge
 
 volumes:
-  social-pro-be-data:
-    name: social-pro-be-data
+  social-pro-data:
+    name: social-pro-data
