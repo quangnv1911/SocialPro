@@ -3,7 +3,7 @@ services:
   social-pro-client:
     image: quangnv1911/social-pro-client
     build:
-      context: ./social-pro-client
+      context: ../../social-pro-client
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -13,7 +13,7 @@ services:
   social-pro-admin:
     image: quangnv1911/social-pro-admin
     build:
-      context: ./social-pro-admin
+      context: ../../social-pro-admin
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -24,7 +24,7 @@ services:
   social-pro-be:
     image: quangnv1911/social-pro-be
     build:
-      context: ./social-pro-be
+      context: ../../social-pro-be
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
@@ -38,7 +38,7 @@ services:
     image: quangnv1911/email-proxy
     container_name: email-proxy
     build:
-      context: ./email-proxy
+      context: ../../email-proxy
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
