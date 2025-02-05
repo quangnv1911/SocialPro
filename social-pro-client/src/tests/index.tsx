@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   createMemoryHistory,
   createRootRoute,
@@ -12,7 +13,6 @@ import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import React from 'react';
 import { ExtraRenderOptions, WrapperProps } from './type';
 import ApiClientContextController from '@/context/apiClient/apiClientContextController/ApiClientContextController';
-
 // @TODO: https://bitbucket.org/thesoftwarehouse/react-starter-boilerplate/pull-requests/5/rss-9-add-login-page/diff#comment-132626297
 const _Wrapper = ({ children, routerConfig = {} }: WrapperProps) => {
   const { routerPath = '/', currentPath = routerPath } = routerConfig;
@@ -39,6 +39,7 @@ const _Wrapper = ({ children, routerConfig = {} }: WrapperProps) => {
 };
 
 function customRender(
+  // eslint-disable-next-line no-unused-vars
   ui: React.ReactElement,
   options?: Omit<RenderOptions, 'queries'> & ExtraRenderOptions,
 ): RenderResult;

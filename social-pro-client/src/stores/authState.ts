@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
 import { encryptStorage } from '@/utils/helper/storage';
@@ -68,8 +69,6 @@ const authStore = create<AuthState>()(
     }),
     {
       name: 'app-storage',
-      serialize: (state): string => encryptStorage.encryptValue(JSON.stringify(state)),
-      deserialize: (encryptedState) => JSON.parse(encryptStorage.decryptValue(encryptedState)),
     },
   ),
 );

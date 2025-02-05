@@ -4,6 +4,7 @@ export interface IDisableDevtoolConfig {
   md5?: string; // bypass disabled md5 value, see 3.2 for details, bypass disabled by default
   url?: string; // Jump page when closing the page fails, the default value is localhost
   tkName?: string; // bypass url parameter name when disabled, default is ddtk
+  // eslint-disable-next-line no-unused-vars
   ondevtoolopen?(type: DetectorType, next: () => void): void; // The callback for opening the developer panel, the url parameter is invalid when enabled, the type is monitoring mode, see 3.5 for details, the next function is to close the current window
   ondevtoolclose?(): void; // callback for developer panel close
   interval?: number; // timer interval default 200ms
