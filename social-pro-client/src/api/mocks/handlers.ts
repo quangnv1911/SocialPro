@@ -4,7 +4,7 @@ import {
   GetUsersResponse,
   LoginMutationArguments,
   LoginMutationResponse,
-} from 'api/actions/auth/auth.types';
+} from '@/api/actions/auth/auth.types';
 import { http } from './http';
 
 const authorizeHandler = http.post<LoginMutationArguments, never, LoginMutationResponse>('/authorize', async () =>
