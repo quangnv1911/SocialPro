@@ -1,0 +1,26 @@
+name: Sonar Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+        project_dirs:
+            required: true
+            type: string  
+            
+jobs:
+  sonar-analysis:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project-dir: ${{ fromJson(inputs.project_dirs) }}  # Chuyển chuỗi thành array
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: ${{ matrix.project-dir }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

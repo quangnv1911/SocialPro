@@ -3,54 +3,21 @@ name: SonarQube Analysis
 on:
   push:
     branches:
-      - develop   # Hoặc nhánh bạn muốn quét, ví dụ 'develop'
-  pull_request:
-    branches:
-      - develop   # Hoặc nhánh bạn muốn quét
+      - "*"
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+    with:
+      project_dirs: "./social-pro-client,./social-pro-admin,./email-proxy"
+
   sonar:
-    name: SonarQube Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    # Cài đặt JDK cho dự án Java Spring
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-
-    # Cài đặt Node.js cho dự án React
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '22'
-
-    # Cài đặt dependencies cho cả Java và React
-    - name: Install Java dependencies
-      run: mvn clean install
-    - name: Install React dependencies
-      run: npm install
-
-    # Cấu hình và chạy SonarQube Scanner cho cả 2 dự án (Java và React)
-    - name: Run SonarQube Scanner
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        # Quét mã nguồn của dự án Java Spring
-        sonar-scanner \
-          -Dsonar.projectKey=java-spring-project \
-          -Dsonar.sources=src/main/java \
-          -Dsonar.host.url=http://localhost:9000 \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}  
-
-        # Quét mã nguồn của dự án React
-        sonar-scanner \
-          -Dsonar.projectKey=react-typescript-project \
-          -Dsonar.sources=src \
-          -Dsonar.language=js \
-          -Dsonar.host.url=http://localhost:9000 \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+    uses: ./.github/workflows/sonar.yml
+    with:
+      project_dirs: "./social-pro-client,./social-pro-admin,./social-pro-be,./email-proxy"
+    
+  unit-tests:
+    uses: ./.github/workflows/unit-tests.yml
+    with:
+        project_dirs: "./social-pro-client,./social-pro-admin,./email-proxy"
+        spring_project_dirs: "./social-pro-be"
