@@ -20,6 +20,8 @@ jobs:
       project_dirs: '["./social-pro-client", "./social-pro-admin", "./email-proxy"]'
   sonar:
     uses: ./.github/workflows/sonar.yml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     with:
       project_dirs: '["./social-pro-client", "./social-pro-admin", "./email-proxy", "./social-pro-be"]'
     
