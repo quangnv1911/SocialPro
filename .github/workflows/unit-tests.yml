@@ -9,7 +9,7 @@ on:
         type: string
       spring_project_dirs:
         description: 'Danh sách thư mục dự án Spring (cách nhau bởi dấu phẩy) cho unit tests'
-        required: false
+        required: true
         type: string
 
 jobs:
@@ -28,9 +28,10 @@ jobs:
             echo ">>> Đang chạy unit tests tại: $dir"
             cd "$dir"
             npm install
-            npm test
+            npm run test || EXIT_CODE=1
             cd -
           done
+          exit $EXIT_CODE
 
       - name: Setup Java 21 for Spring Projects
         if: ${{ inputs.spring_project_dirs != '' }}
@@ -49,6 +50,7 @@ jobs:
             echo ">>> Đang chạy unit tests tại: $dir"
             cd "$dir"
             chmod +x ./mvnw
-            ./mvnw test
+            ./mvnw test || EXIT_CODE=1
             cd -
           done
+          exit $EXIT_CODE
