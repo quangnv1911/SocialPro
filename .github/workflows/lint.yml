@@ -11,6 +11,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node-version: [22.x]
         project-dir: ${{ fromJson(inputs.project_dirs) }}
@@ -25,8 +26,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
-      - name: Install dependencies and Run Lint Fix
+      - name: Install dependencies and Run Lint
         run: |
           npm ci
-          npm run lint:fix
+          npm run lint
         working-directory: ${{ matrix.project-dir }}
