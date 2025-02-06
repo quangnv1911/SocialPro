@@ -3,18 +3,27 @@ name: SonarQube Analysis
 on:
   push:
     branches:
-      - "*"
+      - "**"
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
 
 jobs:
   lint:
     uses: ./.github/workflows/lint.yml
     with:
-      project_dirs: "./social-pro-client,./social-pro-admin,./email-proxy"
-
+      project_dirs: '["./social-pro-client", "./social-pro-admin", "./email-proxy"]'
   sonar:
     uses: ./.github/workflows/sonar.yml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     with:
-      project_dirs: "./social-pro-client,./social-pro-admin,./social-pro-be,./email-proxy"
+      project_dirs: '["./social-pro-client", "./social-pro-admin", "./email-proxy", "./social-pro-be"]'
     
   unit-tests:
     uses: ./.github/workflows/unit-tests.yml
