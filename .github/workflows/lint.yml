@@ -1,0 +1,32 @@
+name: Lint Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+        project_dirs:
+            required: true
+            type: string  
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
+        project-dir: ${{ fromJson(inputs.project_dirs) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies and Run Lint Fix
+        run: |
+          npm ci
+          npm run lint:fix
+        working-directory: ${{ matrix.project-dir }}

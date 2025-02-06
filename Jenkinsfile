@@ -7,6 +7,15 @@ pipeline {
         DOCKER_PASS = credentials('DOCKER_PASS')
         DEPLOY_PATH_STAGING = credentials('DEPLOY_PATH_STAGING')
         DEPLOY_PATH_PRODUCTION = credentials('DEPLOY_PATH_PRODUCTION')
+
+        // Telegram notify config
+        TELEGRAM_TOKEN = credentials('telegram-token')
+        TELEGRAM_CHAT_ID = credentials('telegram-chat-id') 
+
+        TEXT_PRE_BUILD = "Jenkins is building ${JOB_NAME}"
+        TEXT_SUCCESS_BUILD = "${JOB_NAME} is Success"
+        TEXT_FAILURE_BUILD = "${JOB_NAME} is Failure"
+        TEXT_ABORTED_BUILD = "${JOB_NAME} is Aborted"
     }
 
     stages {
@@ -44,6 +53,12 @@ pipeline {
             }
         }
 
+        stage("Pre-Build"){
+            steps{
+                bat ''' curl -s -X POST https://api.telegram.org/bot"%TELEGRAM_TOKEN%"/sendMessage -d chat_id="%TELEGRAM_CHAT_ID%" -d text="%TEXT_PRE_BUILD%" '''
+            }
+        }
+
         stage('Build & Push Docker Images') {
             steps {
                 script {
@@ -71,6 +86,22 @@ pipeline {
     }
 
     post {
+        success{
+            script {
+                bat ''' curl -s -X POST https://api.telegram.org/bot"%TELEGRAM_TOKEN%"/sendMessage -d chat_id="%TELEGRAM_CHAT_ID%" -d text="%TEXT_SUCCESS_BUILD%" '''
+            }
+        }
+        failure{
+            script {
+                bat ''' curl -s -X POST https://api.telegram.org/bot"%TELEGRAM_TOKEN%"/sendMessage -d chat_id="%TELEGRAM_CHAT_ID%" -d text="%TEXT_FAILURE_BUILD%" '''
+            }
+        }
+        aborted{
+            script {
+                bat ''' curl -s -X POST https://api.telegram.org/bot"%TELEGRAM_TOKEN%"/sendMessage -d chat_id="%TELEGRAM_CHAT_ID%" -d text="%TEXT_ABORTED_BUILD%" '''
+            }
+        }
+        
         always {
             echo "CI/CD Pipeline hoàn tất cho branch: ${env.BRANCH_NAME}"
         }
