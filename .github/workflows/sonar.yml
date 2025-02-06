@@ -25,3 +25,4 @@ jobs:
           projectBaseDir: ${{ matrix.project-dir }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          
