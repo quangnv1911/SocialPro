@@ -4,7 +4,14 @@ on:
   push:
     branches:
       - "*"
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+permissions:
+  contents: read
+  id-token: write
 
+  
 jobs:
   lint:
     uses: ./.github/workflows/lint.yml
