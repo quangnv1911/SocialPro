@@ -8,7 +8,7 @@ import FallbackRender from '@/layout/error-boundary';
 const LayoutComponent = () => {
   return (
     <div className="w-full h-full">
-      <HeaderComponent />
+      <HeaderComponent className="mx-6"/>
       <div className="px-4 py-20 flex flex-col min-h-[calc(100vh-200px)]">
         <ErrorBoundary fallbackRender={FallbackRender}>
           <Suspense
