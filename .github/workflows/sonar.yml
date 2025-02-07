@@ -22,7 +22,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Java 21 for Spring Projects
+        if: ${{ matrix.project-dir == './social-pro-be' }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'  
+
       - name: Build Spring project
+        if: ${{ matrix.project-dir == './social-pro-be' }}
         run: mvn clean install -DskipTests
         working-directory: ./social-pro-be
       
