@@ -58,9 +58,8 @@ public class PaymentController extends BaseController {
     }
 
     @PostMapping("/callback")
-    public ApiResponse<UserResponse> handleCallbackPayment(@RequestBody @Valid PaymentCallbackRequest request,
-                                                @RequestParam String otp) {
-//        var result = userService.createUser(request, otp);
+    public ApiResponse<UserResponse> handleCallbackPayment(@RequestBody @Valid PaymentCallbackRequest request) {
+        paymentService.handlePaymentCallback(request);
         var result = new UserResponse();
         return ApiResponse.<UserResponse>builder()
                 .status(HttpStatus.CREATED.value())

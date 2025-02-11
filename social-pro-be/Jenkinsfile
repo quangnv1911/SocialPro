@@ -1,0 +1,22 @@
+// Jenkinsfile của project-a
+pipeline {
+  agent any
+  stages {
+    stage('Check Changes') {
+    //   when { changeset "social-pro-be/**" }
+      steps {
+        script {
+          echo "Building Project A..."
+        }
+      }
+    }
+  }
+  post {
+    success {
+      sh 'echo "Build successful!"'
+    }
+    failure {
+        sh 'echo "Build failed!"'
+    }
+  }
+}

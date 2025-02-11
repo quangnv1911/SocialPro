@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { encryptStorage } from '@/utils/helper/storage';
 
 interface AuthState {
+  isAuthen: boolean;
   accessToken: string | null;
   campusCode: string | null;
   refreshToken: string | null;
@@ -26,6 +27,7 @@ interface AuthState {
 const authStore = create<AuthState>()(
   persist(
     (set, get) => ({
+      isAuthen: false,
       accessToken: null,
       campusCode: null,
       refreshToken: null,
@@ -43,6 +45,7 @@ const authStore = create<AuthState>()(
         image: string,
       ): void =>
         set({
+          isAuthen: true,
           accessToken,
           refreshToken,
           role,
@@ -52,6 +55,7 @@ const authStore = create<AuthState>()(
         }),
       clearTokens: (): void =>
         set({
+          isAuthen: false,
           accessToken: null,
           refreshToken: null,
           role: null,

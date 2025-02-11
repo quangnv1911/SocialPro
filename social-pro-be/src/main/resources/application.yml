@@ -4,6 +4,13 @@ server:
 spring:
   application:
     name: ${SPRING_APPLICATION_NAME}
+  profiles:
+    active: dev  # Kích hoạt profile dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
   security:
     user:
       name: ${SPRING_SECURITY_USER_NAME}
@@ -45,6 +52,9 @@ spring:
           instanceName: ${SPRING_QUARTZ_INSTANCE_NAME}
         threadPool:
           threadCount: ${SPRING_QUARTZ_THREAD_COUNT}
+
+bcrypt:
+  cost: ${BCRYPT_COST}
 
 jwt:
   secret: ${JWT_SECRET}
@@ -107,3 +117,13 @@ keydb:
   host: ${KEYDB_HOST}
   port: ${KEYDB_PORT}
   ssl: ${KEYDB_SSL}
+
+# Otp
+otp:
+  expire_time: ${OTP_EXPIRE_TIME} # Minute
+  length: ${OTP_LENGTH}
+
+# Payment
+payment:
+  token: ${PAYMENT_TOKEN}
+  expire_time: ${PAYMENT_EXPIRE_TIME}

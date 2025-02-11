@@ -38,7 +38,7 @@ public class User extends BaseEntity {
     String avatar;
 
     @Column(name = "money")
-    String money;
+    Long money;
 
     @Column(name = "phone")
     String phone;
@@ -60,7 +60,7 @@ public class User extends BaseEntity {
     LocalDateTime otpExpiryDate;
 
     @Column(name = "enabled")
-    Boolean enabled;
+    Boolean enabled = false;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)

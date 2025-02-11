@@ -8,7 +8,7 @@ import obfuscatorPlugin from 'vite-plugin-javascript-obfuscator';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import { compression } from 'vite-plugin-compression2';
 import { ViteMinifyPlugin } from 'vite-plugin-minify';
-
+import tailwindcss from '@tailwindcss/vite';
 const manualChunks = (id: string) => {
   if (id.includes('@sentry')) {
     return 'sentry';
@@ -18,6 +18,7 @@ const manualChunks = (id: string) => {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     react({
       jsxImportSource: '@welldone-software/why-did-you-render',
     }),

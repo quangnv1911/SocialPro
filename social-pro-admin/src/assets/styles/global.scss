@@ -1,0 +1,19 @@
+@use "tailwindcss";
+
+:root {
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    /* ... other variables */
+  }
+  
+  .dark {
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+    /* ... other dark mode variables */
+  }
+
+/* global.css */
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
+} 
