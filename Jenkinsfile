@@ -116,9 +116,7 @@ pipeline {
         stage('Social-pro-be') {
           steps {
                 script {
-                    dir('social-pro-be') {
-                            load 'Jenkinsfile'
-                        }
+                    build job: 'social-pro-be'
                 }
             }
         }
