@@ -109,15 +109,18 @@
 // }
 
 pipeline {
-  agent none
+  agent any
   stages {
     stage('Build All Projects') {
       parallel {
         stage('Social-pro-be') {
-          agent any
-        //   when { changeset "social-pro-be/**" }
-          def projectAPipeline = load 'social-pro-be/Jenkinsfile'
-          projectAPipeline()
+          steps {
+                script {
+                   def projectAPipeline = load 'project-a/Jenkinsfile'
+                    projectAPipeline()
+                    
+                }
+            }
         }
        
       }
