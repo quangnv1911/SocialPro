@@ -116,13 +116,10 @@ pipeline {
         stage('Social-pro-be') {
           agent any
         //   when { changeset "social-pro-be/**" }
-          steps { build job: 'social-pro-be/main' }
+          def projectAPipeline = load 'social-pro-be/Jenkinsfile'
+          projectAPipeline()
         }
-        stage('Project B') {
-          agent any
-          when { changeset "project-b/**" }
-          steps { build job: 'project-b/main' }
-        }
+       
       }
     }
   }
