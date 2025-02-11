@@ -116,8 +116,9 @@ pipeline {
         stage('Social-pro-be') {
           steps {
                 script {
-                   def projectAPipeline = load 'social-pro-be/Jenkinsfile'
-                    
+                    dir('social-pro-be') {
+                            load 'Jenkinsfile'
+                        }
                 }
             }
         }
