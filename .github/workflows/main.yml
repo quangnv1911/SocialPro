@@ -5,8 +5,8 @@ on:
     branches:
       - "**"
   pull_request:
-      branches:
-        - "dev"
+    branches:
+      - "dev"
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
@@ -23,11 +23,11 @@ jobs:
       project_dirs: '["./social-pro-client", "./social-pro-admin", "./email-proxy"]'
   sonar:
     uses: ./.github/workflows/sonar.yml
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     with:
       project_dirs: '["./social-pro-client", "./social-pro-admin", "./email-proxy", "./social-pro-be"]'
-    
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
   unit-tests:
     uses: ./.github/workflows/unit-tests.yml
     with:

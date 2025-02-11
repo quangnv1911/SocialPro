@@ -2,11 +2,13 @@ package com.spring.social_pro.backend.controller;
 
 import com.spring.social_pro.backend.base.BaseController;
 import com.spring.social_pro.backend.dto.request.ApiRequest;
+import com.spring.social_pro.backend.dto.request.authen.RegisterRequest;
 import com.spring.social_pro.backend.dto.request.user.UserCreationRequest;
 import com.spring.social_pro.backend.dto.request.authen.AuthenticateRequest;
 import com.spring.social_pro.backend.dto.response.ApiResponse;
 import com.spring.social_pro.backend.dto.response.UserResponse;
 import com.spring.social_pro.backend.dto.response.authen.AuthenticateResponse;
+import com.spring.social_pro.backend.service.IAuthenticationService;
 import com.spring.social_pro.backend.service.Impl.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -22,14 +24,14 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController extends BaseController {
 
-    AuthenticationService authenticationService;
+    IAuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ApiResponse<UserResponse> createUser(@RequestBody @Valid ApiRequest<UserCreationRequest> request,
+    public ApiResponse<?> createUser(@RequestBody @Valid ApiRequest<RegisterRequest> request,
                                                 @RequestParam String otp) {
-//        var result = userService.createUser(request, otp);
-        var result = new UserResponse();
-        return ApiResponse.<UserResponse>builder()
+
+        var result = authenticationService.handleRegister(request.getData());
+        return ApiResponse.<String>builder()
                 .status(HttpStatus.CREATED.value())
                 .data(result)
                 .build();
@@ -54,6 +56,24 @@ public class AuthController extends BaseController {
                 .build();
     }
 
+    @PostMapping("/logout")
+    public ApiResponse<AuthenticateResponse> handleLogout() {
 
+        
+        return ApiResponse.<AuthenticateResponse>builder()
+                .status(HttpStatus.OK.value())
+                .data(null)
+                .build();
+    }
 
+    @PostMapping("/verify-account")
+    public ApiResponse<?> verifyAccount(@RequestBody @Valid ApiRequest<RegisterRequest> request,
+                                     @RequestParam String otp) {
+
+        var result = authenticationService.handleRegister(request.getData());
+        return ApiResponse.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .data(result)
+                .build();
+    }
 }

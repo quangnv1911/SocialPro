@@ -16,8 +16,8 @@ import java.util.Date;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "validate_token")
-public class ValidateToken extends BaseEntity {
+@Table(name = "invalid_token")
+public class InvalidToken extends BaseEntity {
     @Column(name = "token_value", nullable = false)
     String tokenValue;
 

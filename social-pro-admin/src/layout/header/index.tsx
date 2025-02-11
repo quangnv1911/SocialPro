@@ -1,32 +1,55 @@
 import { Link } from '@tanstack/react-router';
-import ViteLogo from 'assets/images/vite-logo.svg?react';
-import VitestLogo from 'assets/images/vitest-logo.svg?react';
-import { HTMLAttributes } from 'react';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Maximize, Moon, Settings, Sun } from 'lucide-react';
+import themeStore from '@/stores/themeState';
 
-const HeaderComponent = ({ className, ...props }: HTMLAttributes<HTMLElement>) => {
+const HeaderComponent = () => {
+  const { setTheme, theme } = themeStore();
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
-    <header className="app__header">
-      <nav className={cn('flex items-center space-x-4 lg:space-x-6', className)} {...props}>
-        <Link to="/" className="text-sm font-medium transition-colors hover:text-primary">
-          TRANG KHÁCH
-        </Link>
-        <Link to="/contact" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-          LIÊN HỆ
-        </Link>
-        <Link to="/zalo" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-          BOX ZALO
-        </Link>
-        <Link to="/guide" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-          HƯỚNG DẪN SỬ DỤNG
-        </Link>
-        <Link to="/cron" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-          CRON JOB
-        </Link>
-        <Link to="/upgrade" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-          MUA THÊM CHỨC NĂNG
-        </Link>
-      </nav>
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
+      <div className="flex h-16 items-center justify-between px-6">
+        {/* Logo */}
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">Social Pro Dashboard</h2>
+          </Link>
+        </div>
+
+        {/* Control buttons */}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-gray-100 p-2 rounded-lg transition cursor-pointer"
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+          >
+            <Sun className="h-6 w-6 text-gray-700 dark:hidden" />
+            <Moon className="h-6 w-6 text-gray-700 hidden dark:block" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-gray-100 p-2 rounded-lg transition cursor-pointer"
+            onClick={() => toggleFullscreen()}
+          >
+            <Maximize className="h-6 w-6 text-gray-700" />
+          </Button>
+
+          <Button variant="ghost" size="icon" className="hover:bg-gray-100 p-2 rounded-lg transition cursor-pointer">
+            <Settings className="h-6 w-6 text-gray-700" />
+          </Button>
+        </div>
+      </div>
     </header>
   );
 };

@@ -19,20 +19,21 @@ jobs:
         project-dir: ${{ fromJson(inputs.project_dirs) }}  # Chuyển chuỗi thành array
 
     steps:
-      - name: Debug Secrets
-        run: |
-          if [ -z "$SONAR_TOKEN" ]; then
-          echo "SONAR_TOKEN is not set"
-          exit 1
-          else
-          echo "SONAR_TOKEN is set"
-          fi
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Java 21 for Spring Projects
+        if: ${{ matrix.project-dir == './social-pro-be' }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'  
+
+      - name: Build Spring project
+        if: ${{ matrix.project-dir == './social-pro-be' }}
+        run: mvn clean install -DskipTests
+        working-directory: ./social-pro-be
+      
 
       - name: Set up SonarCloud
         uses: SonarSource/sonarcloud-github-action@master

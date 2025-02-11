@@ -7,16 +7,18 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.openid.connect.sdk.AuthenticationResponse;
 import com.spring.social_pro.backend.dto.request.authen.AuthenticateRequest;
+import com.spring.social_pro.backend.dto.request.authen.RegisterRequest;
+import com.spring.social_pro.backend.dto.request.authen.VerifyAccountRequest;
 import com.spring.social_pro.backend.dto.response.authen.AuthenticateResponse;
 import com.spring.social_pro.backend.entity.User;
-import com.spring.social_pro.backend.entity.ValidateToken;
 import com.spring.social_pro.backend.exception.AppException;
 import com.spring.social_pro.backend.exception.ErrorCode;
 import com.spring.social_pro.backend.exception.ExpiredTokenException;
 import com.spring.social_pro.backend.exception.InvalidTokenException;
+import com.spring.social_pro.backend.repository.InvalidTokenRepository;
 import com.spring.social_pro.backend.repository.UserRepository;
-import com.spring.social_pro.backend.repository.ValidateTokenRepository;
 import com.spring.social_pro.backend.service.IAuthenticationService;
+import com.spring.social_pro.backend.service.IOtpService;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,9 +62,15 @@ public class AuthenticationService implements IAuthenticationService {
     @Value("${jwt.issuer}")
     protected String ISSUER_JWT;
 
-    ValidateTokenRepository validatedTokenRepository;
-    UserRepository userRepository;
+    @NonFinal
+    @Value("${bcrypt.cost}")
+    protected Integer BCRYPT_COST;
 
+    InvalidTokenRepository invalidTokenRepository;
+    UserRepository userRepository;
+    IOtpService otpService;
+
+    @Override
     public AuthenticateResponse authenticate(AuthenticateRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -75,15 +84,28 @@ public class AuthenticationService implements IAuthenticationService {
 
         var token = generateToken(user);
         var refreshToken = generateRefreshToken();
-        ValidateToken validateToken = new ValidateToken(refreshToken, calculateExpiryDate(String.valueOf(REFRESH_TOKEN_EXPIRATION)));
-        validatedTokenRepository.save(validateToken);
         String role = user.getRole().getRoleName();
 
         return AuthenticateResponse.builder()
-                .token(token)
+                .accessToken(token)
+                .refreshToken(refreshToken)
                 .role(role)
                 .authenticated(true)
                 .build();
+    }
+
+    @Override
+    public Boolean handleVerifyAccount(VerifyAccountRequest request) {
+        var user = userRepository
+                .findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        var checkValidateOtp = otpService.validateOtp(request.getOtp(), user.getEmail());
+        if(!checkValidateOtp) {
+            throw new AppException(ErrorCode.INVALID_OTP);
+        }
+        user.setEnabled(true);
+        userRepository.save(user);
+        return true;
     }
 
 
@@ -111,7 +133,7 @@ public class AuthenticationService implements IAuthenticationService {
         var verified = signedJWT.verify(verifier);
         if (!verified) throw new InvalidTokenException();
 
-        if (!validatedTokenRepository.existsById(UUID.fromString(signedJWT.getJWTClaimsSet().getJWTID())))
+        if (!invalidTokenRepository.existsById(UUID.fromString(signedJWT.getJWTClaimsSet().getJWTID())))
             throw new InvalidTokenException();
 
         return signedJWT;
@@ -142,6 +164,28 @@ public class AuthenticationService implements IAuthenticationService {
             log.error("Cannot create token", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String handleLogout() {
+        return "";
+    }
+
+    @Override
+    public String handleRegister(RegisterRequest request) {
+        // Check if account has exist
+        if(userRepository.existsUserByEmailOrUserName(request.getEmail().toLowerCase(), request.getUserName().toLowerCase())){
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(BCRYPT_COST);
+
+        User newUser = new User()
+                .setEmail(request.getEmail())
+                .setUserName(request.getUserName())
+                .setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(newUser);
+        otpService.generateOtp(request.getEmail());
+        return "User registered successfully";
     }
 
     private String buildScope(User user) {
