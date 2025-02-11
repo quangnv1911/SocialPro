@@ -117,7 +117,6 @@ pipeline {
           steps {
                 script {
                    def projectAPipeline = load 'social-pro-be/Jenkinsfile'
-                    projectAPipeline()
                     
                 }
             }
