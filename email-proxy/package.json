@@ -11,9 +11,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@elastic/elasticsearch": "^8.17.0",
+    "@types/winston": "^2.4.4",
     "amqplib": "^0.10.5",
     "email-service": "file:",
     "express": "^4.21.2",
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "winston": "^3.17.0"
   }
 }

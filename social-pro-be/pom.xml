@@ -29,6 +29,25 @@
     <properties>
         <java.version>21</java.version>
     </properties>
+    <profiles>
+        <profile>
+            <id>local</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.flywaydb</groupId>
+                        <artifactId>flyway-maven-plugin</artifactId>
+                        <configuration>
+                            <configFiles>src/main/resources/config/local/flyway.properties</configFiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--Other profiles here-->
+
+    </profiles>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
