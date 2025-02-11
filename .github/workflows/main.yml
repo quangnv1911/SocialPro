@@ -27,6 +27,8 @@ jobs:
       project_dirs: '["./social-pro-client", "./social-pro-admin", "./email-proxy", "./social-pro-be"]'
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
       
   unit-tests:
     uses: ./.github/workflows/unit-tests.yml
