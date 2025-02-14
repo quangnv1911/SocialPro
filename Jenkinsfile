@@ -25,22 +25,22 @@ pipeline {
 
         stage('Trigger Social Pro Backend Project') {
             steps {
-                build job: 'social-pro-be', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME)]
+                build job: 'social-pro-be', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
             }
         }
         stage('Trigger Social Pro Admin Project') {
             steps {
-                build job: 'social-pro-admin', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME)]
+                build job: 'social-pro-admin', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
             }
         }
         stage('Trigger Social Pro Client Project') {
             steps {
-                build job: 'social-pro-client', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME)]
+                build job: 'social-pro-client', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
             }
         }
         stage('Trigger Email proxy Project') {
             steps {
-                build job: 'email-proxy', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME)]
+                build job: 'email-proxy', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
             }
         }
 
