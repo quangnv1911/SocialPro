@@ -3,3 +3,4 @@
 node_modules
 deploy/production/.env.production
 deploy/staging/.env.staging
+deploy/.env.jenkins

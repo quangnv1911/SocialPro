@@ -1,7 +1,7 @@
 ##### Docker compose file for production #####
 services: 
   social-pro-client:
-    image: quangnv1911/social-pro-client
+    image: quangnv1911/social-pro-client:${DOCKER_IMAGE_TAG}
     build:
       context: ../../social-pro-client
       dockerfile: Dockerfile
@@ -11,7 +11,7 @@ services:
       - .env.production  
 
   social-pro-admin:
-    image: quangnv1911/social-pro-admin
+    image: quangnv1911/social-pro-admin:${DOCKER_IMAGE_TAG}
     build:
       context: ../../social-pro-admin
       dockerfile: Dockerfile
@@ -22,7 +22,7 @@ services:
 
 
   social-pro-be:
-    image: quangnv1911/social-pro-be
+    image: quangnv1911/social-pro-be:${DOCKER_IMAGE_TAG}
     build:
       context: ../../social-pro-be
       dockerfile: Dockerfile
@@ -35,7 +35,7 @@ services:
       - .env.production   
 
   email-proxy:
-    image: quangnv1911/email-proxy
+    image: quangnv1911/email-proxy:${DOCKER_IMAGE_TAG}
     container_name: email-proxy
     build:
       context: ../../email-proxy
