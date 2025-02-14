@@ -4,43 +4,40 @@ pipeline {
     agent any
     environment {
         SCANNER_HOME= tool 'sonar-scanner'
-        DEPLOY_CREDS = credentials('server-ssh-creds')
     }
     parameters {
         string(name: 'TARGET_BRANCH', defaultValue: 'dev')
+        string(name: 'TAG')
     }
+    
     stages {
         stage('Checkout') {
             steps {
-                git branch: params.TARGET_BRANCH,credentialsId: 'git-cred', url: 'https://github.com/quangnv1911/SocialPro.git'
+                git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
+             
+                
             }
         }
         stage('Install Dependencies') {
           steps {
-            sh 'npm install'
+            nodejs(nodeJSInstallationName: 'node22') {
+                sh 'npm -v'  //substitute with your code
+                sh 'node -v'
+            
+            dir('email-proxy') {
+                sh 'ls'
+                sh 'npm install'
+            }
+            }
           }
         }
         stage('Sonarqube Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                   sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=nodejsmysql -Dsonar.projectName=nodejsmysql"
+                    dir('email-proxy') {
+                        sh "$SCANNER_HOME/bin/sonar-scanner"
+                    }
                 }
-            }
-        }
-        stage('Security Scan') {
-            steps {
-                sh 'npm audit'
-                sh 'npx snyk test'
-            }
-        }
-        stage('Unit Tests') {
-            steps {
-                sh 'npm test'
-            }
-        }
-        stage('Integration Tests') {
-            steps {
-                sh 'npm run test:integration'
             }
         }
 
@@ -48,54 +45,11 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred') {
-                        sh "docker push ${IMAGE_NAME}:${TAG}"
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Staging') {
-            when {
-                expression { 
-                    params.TARGET_BRANCH == 'dev'
-                }
-            }
-            steps {
-                script {
-                    def server = (params.TARGET_BRANCH == 'dev') ? 'staging' : 'prod'
-                    sshagent([DEPLOY_CREDS]) {
-                        sh """
-                            ssh ${server}-user@${server}-host "mkdir -p /app/node-project"
-                            rsync -avz -e 'ssh -o StrictHostKeyChecking=no' \
-                            --exclude='node_modules' \
-                            ./* ${server}-user@${server}-host:/app/node-project/
-                            
-                            ssh ${server}-user@${server}-host "cd /app/node-project && npm install --production && pm2 restart ecosystem.config.js"
-                        """
-                    }
-                }
-            }
-        }
-
-
-        stage('Deploy to Prod') {
-            when {
-                expression { 
-                    params.TARGET_BRANCH == 'main'
-                }
-            }
-            steps {
-                script {
-                    def server = (params.TARGET_BRANCH == 'dev') ? 'staging' : 'prod'
-                    sshagent([DEPLOY_CREDS]) {
-                        sh """
-                            ssh ${server}-user@${server}-host "mkdir -p /app/node-project"
-                            rsync -avz -e 'ssh -o StrictHostKeyChecking=no' \
-                            --exclude='node_modules' \
-                            ./* ${server}-user@${server}-host:/app/node-project/
-                            
-                            ssh ${server}-user@${server}-host "cd /app/node-project && npm install --production && pm2 restart ecosystem.config.js"
-                        """
+                        dir('email-proxy') {
+                            sh "docker rmi quangnv1911/email-proxy"
+                            sh "docker build -t quangnv1911/email-proxy ."
+                            sh "docker push quangnv1911/email-proxy:${TAG}"
+                        }
                     }
                 }
             }
