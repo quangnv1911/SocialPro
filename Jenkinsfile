@@ -4,6 +4,7 @@ pipeline {
     agent any
     environment {
         BRANCH_NAME = "${env.GIT_BRANCH}"
+        TAG = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
     }
     stages {
         stage('Load .env file') {
