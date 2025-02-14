@@ -1,4 +1,4 @@
-// Jenkinsfile của project-a
+// Jenkinsfile của social pro be
 pipeline {
   agent any
   stages {
@@ -6,17 +6,17 @@ pipeline {
     //   when { changeset "social-pro-be/**" }
       steps {
         script {
-          echo "Building Project A..."
+          echo "Building social pro be..."
         }
       }
     }
   }
   post {
     success {
-      sh 'echo "Build successful!"'
+      sh 'echo "Build social pro be successful!"'
     }
     failure {
-        sh 'echo "Build failed!"'
+        sh 'echo "Build social pro be failed!"'
     }
   }
 }
