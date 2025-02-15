@@ -17,7 +17,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController("/payment")
 @RequiredArgsConstructor
@@ -33,11 +37,10 @@ public class PaymentController extends BaseController {
         try {
             // Lấy accessToken từ header
             String accessToken = authorizationHeader.replace("Bearer ", "");
-
-            // Lấy thông tin từ token
+             // Lấy thông tin từ token
             var claims = jwtUtils.getUserInfoFromAccessToken(accessToken);
 
-            String userId = claims.getSubject();
+            UUID userId = UUID.fromString(claims.getSubject());
 
             GeneratePaymentResponse response = paymentService.generateToken(request,userId);
             // Trả về thông tin người dùng
