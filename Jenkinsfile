@@ -3,7 +3,6 @@
 pipeline {
     agent any
     environment {
-        BRANCH_NAME = "${env.GIT_BRANCH}"
         TAG = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
     }
     stages {
@@ -23,31 +22,36 @@ pipeline {
             }
         }
 
+        stage ('Check branch') {
+            steps {
+                echo "${env.GIT_BRANCH}"
+            }
+        }
         stage('Trigger Social Pro Backend Project') {
             steps {
-                build job: 'social-pro-be', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
+                build job: 'social-pro-be', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
             }
         }
         stage('Trigger Social Pro Admin Project') {
             steps {
-                build job: 'social-pro-admin', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
+                build job: 'social-pro-admin', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
             }
         }
         stage('Trigger Social Pro Client Project') {
             steps {
-                build job: 'social-pro-client', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
+                build job: 'social-pro-client', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
             }
         }
         stage('Trigger Email proxy Project') {
             steps {
-                build job: 'email-proxy', parameters: [string(name: 'BRANCH_NAME', value: BRANCH_NAME), string(name: 'TAG', value: TAG)]
+                build job: 'email-proxy', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
             }
         }
 
         stage('Deploy to staging'){
             when {
                 expression { 
-                    BRANCH_NAME == 'dev'
+                    env.GIT_BRANCH == 'dev'
                 }
             }
             steps {
@@ -64,7 +68,7 @@ pipeline {
         stage('Deploy to production'){
             when {
                 expression { 
-                    BRANCH_NAME == 'main'
+                    env.GIT_BRANCH == 'main'
                 }
             }
             steps {
