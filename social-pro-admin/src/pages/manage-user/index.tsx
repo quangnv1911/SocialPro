@@ -798,7 +798,7 @@ const ManageUserScreen: FC = (): ReactElement => {
             <PaginationItem>
               <PaginationPrevious
                 onClick={() => handlePageChange(table.getState().pagination.pageIndex - 1)}
-                disabled={!table.getCanPreviousPage()}
+                isActive={table.getCanPreviousPage()}
                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
               />
             </PaginationItem>
@@ -816,7 +816,7 @@ const ManageUserScreen: FC = (): ReactElement => {
             <PaginationItem>
               <PaginationNext
                 onClick={() => handlePageChange(table.getState().pagination.pageIndex + 1)}
-                disabled={!table.getCanNextPage()}
+                isActive={table.getCanNextPage()}
                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
               />
             </PaginationItem>
@@ -893,9 +893,11 @@ const ManageUserScreen: FC = (): ReactElement => {
                 <Select
                   value={editingUser.status}
                   onValueChange={(value) => setEditingUser({ ...editingUser, status: value as 'active' | 'inactive' })}
-                  className="w-full py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                 >
-                  <SelectTrigger id="edit-status">
+                  <SelectTrigger
+                    id="edit-status"
+                    className={'w-full py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500'}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
