@@ -18,15 +18,6 @@ pipeline {
                 
             }
         }
-        stage('Install Dependencies') {
-          steps {
-            nodejs(nodeJSInstallationName: 'node22') {
-            dir('social-pro-be') {
-                sh 'npm install'
-            }
-            }
-          }
-        }
         stage('Sonarqube Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
@@ -41,9 +32,9 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred') {
-                        dir('email-proxy') {
+                        dir('social-pro-be') {
                             sh "docker rmi quangnv1911/social-pro-be"
-                            sh "docker build -t quangnv1911/social-pro-be ."
+                            sh "docker build -t quangnv1911/social-pro-be:${TAG} ."
                             sh "docker push quangnv1911/social-pro-be:${TAG}"
                         }
                     }
