@@ -1,0 +1,54 @@
+// Jenkinsfile của social-pro-admin
+
+pipeline {
+    agent any
+    environment {
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+    parameters {
+        string(name: 'TARGET_BRANCH', defaultValue: 'dev')
+        string(name: 'TAG')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
+             
+                
+            }
+        }
+        stage('Install Dependencies') {
+          steps {
+            nodejs(nodeJSInstallationName: 'node22') {
+            dir('social-pro-admin') {
+                sh 'npm install'
+            }
+            }
+          }
+        }
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    dir('social-pro-admin') {
+                        sh "$SCANNER_HOME/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
+         stage('Docker Push Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('email-proxy') {
+                            sh "docker rmi quangnv1911/social-pro-admin"
+                            sh "docker build -t quangnv1911/social-pro-admin ."
+                            sh "docker push quangnv1911/social-pro-admin:${TAG}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
