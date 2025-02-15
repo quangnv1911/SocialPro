@@ -21,11 +21,7 @@ pipeline {
         stage('Install Dependencies') {
           steps {
             nodejs(nodeJSInstallationName: 'node22') {
-                sh 'npm -v'  //substitute with your code
-                sh 'node -v'
-            
             dir('email-proxy') {
-                sh 'ls'
                 sh 'npm install'
             }
             }

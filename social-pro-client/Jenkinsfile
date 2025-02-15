@@ -1,22 +1,54 @@
-// Jenkinsfile của project-a
+// Jenkinsfile của email proxy
+
 pipeline {
-  agent any
-  stages {
-    stage('Check Changes') {
-    //   when { changeset "social-pro-be/**" }
-      steps {
-        script {
-          echo "Building Project A..."
+    agent any
+    environment {
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+    parameters {
+        string(name: 'TARGET_BRANCH', defaultValue: 'dev')
+        string(name: 'TAG')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
+             
+                
+            }
         }
-      }
+        stage('Install Dependencies') {
+          steps {
+            nodejs(nodeJSInstallationName: 'node22') {
+            dir('email-proxy') {
+                sh 'npm install'
+            }
+            }
+          }
+        }
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    dir('email-proxy') {
+                        sh "$SCANNER_HOME/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
+         stage('Docker Push Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('email-proxy') {
+                            sh "docker rmi quangnv1911/email-proxy"
+                            sh "docker build -t quangnv1911/email-proxy ."
+                            sh "docker push quangnv1911/email-proxy:${TAG}"
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
-  post {
-    success {
-      sh 'echo "Build successful!"'
-    }
-    failure {
-        sh 'echo "Build failed!"'
-    }
-  }
 }

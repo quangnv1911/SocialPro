@@ -1,22 +1,54 @@
-// Jenkinsfile của social pro be
+// Jenkinsfile của social-pro-be
+
 pipeline {
-  agent any
-  stages {
-    stage('Check Changes') {
-    //   when { changeset "social-pro-be/**" }
-      steps {
-        script {
-          echo "Building social pro be..."
+    agent any
+    environment {
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+    parameters {
+        string(name: 'TARGET_BRANCH', defaultValue: 'dev')
+        string(name: 'TAG')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
+             
+                
+            }
         }
-      }
+        stage('Install Dependencies') {
+          steps {
+            nodejs(nodeJSInstallationName: 'node22') {
+            dir('social-pro-be') {
+                sh 'npm install'
+            }
+            }
+          }
+        }
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    dir('social-pro-be') {
+                        sh "$SCANNER_HOME/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
+         stage('Docker Push Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('email-proxy') {
+                            sh "docker rmi quangnv1911/social-pro-be"
+                            sh "docker build -t quangnv1911/social-pro-be ."
+                            sh "docker push quangnv1911/social-pro-be:${TAG}"
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
-  post {
-    success {
-      sh 'echo "Build social pro be successful!"'
-    }
-    failure {
-        sh 'echo "Build social pro be failed!"'
-    }
-  }
 }
