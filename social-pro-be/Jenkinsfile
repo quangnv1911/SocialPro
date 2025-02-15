@@ -48,9 +48,12 @@ pipeline {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred') {
                         dir('social-pro-be') {
-                            sh "docker build -t quangnv1911/social-pro-be:${TAG} ."
-                            sh "docker push quangnv1911/social-pro-be:${TAG}"
-                            sh "docker rmi quangnv1911/social-pro-be:${TAG}"
+                            try{
+                                sh "docker build -t quangnv1911/social-pro-be:${TAG} ."
+                                sh "docker push quangnv1911/social-pro-be:${TAG}"
+                            } finally{
+                                sh "docker rmi -f $(docker images 'quangnv1911/social-pro-be' -q)"
+                            }
                         }
                     }
                 }
