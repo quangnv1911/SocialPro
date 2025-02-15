@@ -27,7 +27,9 @@ pipeline {
         }
         stage('Clean install') {
             steps {
-                sh 'mvn clean install -DskipTests'
+                dir('social-pro-be') {
+                    sh 'mvn clean install -DskipTests'
+                }
             }
         }
         stage('Sonarqube Analysis') {
