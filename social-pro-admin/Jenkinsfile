@@ -42,9 +42,9 @@ pipeline {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred') {
                         dir('social-pro-admin') {
-                            sh "docker rmi quangnv1911/social-pro-admin"
                             sh "docker build -t quangnv1911/social-pro-admin:${TAG} ."
                             sh "docker push quangnv1911/social-pro-admin:${TAG}"
+                            sh "docker rmi quangnv1911/social-pro-admin:${TAG}"
                         }
                     }
                 }
