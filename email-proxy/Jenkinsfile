@@ -43,7 +43,7 @@ pipeline {
                     withDockerRegistry(credentialsId: 'docker-cred') {
                         dir('email-proxy') {
                             sh "docker rmi quangnv1911/email-proxy"
-                            sh "docker build -t quangnv1911/email-proxy ."
+                            sh "docker build -t quangnv1911/email-proxy:${TAG} ."
                             sh "docker push quangnv1911/email-proxy:${TAG}"
                         }
                     }
