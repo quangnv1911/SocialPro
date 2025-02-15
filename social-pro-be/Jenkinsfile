@@ -12,7 +12,7 @@ pipeline {
         SCANNER_HOME= tool 'sonar-scanner'
     }
     parameters {
-        string(name: 'TARGET_BRANCH', defaultValue: 'dev')
+        string(name: 'TARGET_BRANCH')
         string(name: 'TAG')
     }
     
