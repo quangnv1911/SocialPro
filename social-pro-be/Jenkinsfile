@@ -19,7 +19,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo "${param.TARGET_BRANCH}"
+                echo "${params.TARGET_BRANCH}"
                 git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
              
                 
