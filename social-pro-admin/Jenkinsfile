@@ -6,14 +6,14 @@ pipeline {
         SCANNER_HOME= tool 'sonar-scanner'
     }
     parameters {
-        string(name: 'TARGET_BRANCH')
+        string(name: 'BRANCH_NAME')
         string(name: 'TAG')
     }
     
     stages {
         stage('Checkout') {
             steps {
-                git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
+                git branch: params.BRANCH_NAME,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
              
                 
             }
