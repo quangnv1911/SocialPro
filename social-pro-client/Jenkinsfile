@@ -3,6 +3,7 @@
 pipeline {
     agent any
     environment {
+        DOCKER_BUILDKIT='1'
         SCANNER_HOME= tool 'sonar-scanner'
     }
     parameters {

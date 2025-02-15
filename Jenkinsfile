@@ -3,6 +3,7 @@
 pipeline {
     agent any
     environment {
+        DOCKER_BUILDKIT='1'
         TAG = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
     }
     stages {
@@ -27,24 +28,28 @@ pipeline {
                 echo "${env.GIT_BRANCH}"
             }
         }
-        stage('Trigger Social Pro Backend Project') {
-            steps {
-                build job: 'social-pro-be', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
-            }
-        }
-        stage('Trigger Social Pro Admin Project') {
-            steps {
-                build job: 'social-pro-admin', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
-            }
-        }
-        stage('Trigger Social Pro Client Project') {
-            steps {
-                build job: 'social-pro-client', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
-            }
-        }
-        stage('Trigger Email proxy Project') {
-            steps {
-                build job: 'email-proxy', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+        stage('Trigger Projects') {
+            parallel {
+                stage('Trigger Social Pro Backend Project') {
+                    steps {
+                        build job: 'social-pro-be', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
+                stage('Trigger Social Pro Admin Project') {
+                    steps {
+                        build job: 'social-pro-admin', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
+                stage('Trigger Social Pro Client Project') {
+                    steps {
+                        build job: 'social-pro-client', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
+                stage('Trigger Email proxy Project') {
+                    steps {
+                        build job: 'email-proxy', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
             }
         }
 
@@ -55,7 +60,7 @@ pipeline {
                 }
             }
             steps {
-                scripts {
+                script {
                     sshagent(credentials : ['staging-social-pro-ssh']) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${STAGING_SSH_USER}@${STAGING_SERVER_IP} 'cd ${STAGING_DEPLOY_DIR} && ./deploy.sh'
@@ -72,7 +77,7 @@ pipeline {
                 }
             }
             steps {
-                scripts {
+                script {
                     sshagent(credentials : ['prod-social-pro-ssh']) {
                         sh """
                             ssh -o StrictHostKeyChecking=no ${PROD_SSH_USER}@${PROD_SERVER_IP} 'cd ${PROD_DEPLOY_DIR} && ./deploy.sh'
@@ -85,10 +90,50 @@ pipeline {
 
     post {
         success {
-            echo "Build successful!"
+            script {
+                withCredentials([
+                string(credentialsId: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN', variable: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN'),
+                string(credentialsId: 'JENKINS_TELEGRAM_CHAT', variable: 'JENKINS_TELEGRAM_CHAT')
+                ]) {
+                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
+                    def message = "✅ *Build Successful!* 🎉\n" +
+                                "Project: `${env.JOB_NAME}`\n" +
+                                "Branch: `${env.GIT_BRANCH}`\n" +
+                                "Tag: `${env.TAG}`\n" +
+                                "🔗 [View Build](${buildUrl})"
+
+                    sh """
+                        curl -s -X POST "https://api.telegram.org/bot${SOCIAL_PRO_TELEGRAM_BOT_TOKEN}/sendMessage" \
+                        -d chat_id="${JENKINS_TELEGRAM_CHAT}" \
+                        -d parse_mode="Markdown" \
+                        -d text="${message}"
+                    """
+                }
+            }
         }
+    
         failure {
-            echo "Build failed!"
+            script {
+                withCredentials([
+                string(credentialsId: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN', variable: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN'),
+                string(credentialsId: 'JENKINS_TELEGRAM_CHAT', variable: 'JENKINS_TELEGRAM_CHAT')
+                ]) {
+                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
+                    def message = "❌ *Build Failed!* 😞\n" +
+                                "Project: `${env.JOB_NAME}`\n" +
+                                "Branch: `${env.GIT_BRANCH}`\n" +
+                                "Tag: `${env.TAG}`\n" +
+                                "🔗 [View Build](${buildUrl})"
+
+                    sh """
+                        curl -s -X POST "https://api.telegram.org/bot${SOCIAL_PRO_TELEGRAM_BOT_TOKEN}/sendMessage" \
+                        -d chat_id="${JENKINS_TELEGRAM_CHAT}" \
+                        -d parse_mode="Markdown" \
+                        -d text="${message}"
+                    """
+                }
+            }
         }
     }
+
 }
