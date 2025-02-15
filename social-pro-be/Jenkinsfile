@@ -2,6 +2,12 @@
 
 pipeline {
     agent any
+
+    tools {
+        maven 'mvn-3.9.9'
+        jdk 'jdk 21'
+    }
+
     environment {
         SCANNER_HOME= tool 'sonar-scanner'
     }
@@ -33,9 +39,9 @@ pipeline {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred') {
                         dir('social-pro-be') {
-                            sh "docker rmi quangnv1911/social-pro-be"
                             sh "docker build -t quangnv1911/social-pro-be:${TAG} ."
                             sh "docker push quangnv1911/social-pro-be:${TAG}"
+                            sh "docker rmi quangnv1911/social-pro-be:${TAG}"
                         }
                     }
                 }
