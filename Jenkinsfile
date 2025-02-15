@@ -16,8 +16,8 @@ pipeline {
                         env.STAGING_SSH_USER = props['STAGING_SSH_USER']
                         env.PROD_SERVER_IP = props['PROD_SERVER_IP']
                         env.PROD_SSH_USER = props['PROD_SSH_USER']
-                        env.PROD_SERVER_IP = props['STAGING_DEPLOY_DIR']
-                        env.PROD_SSH_USER = props['PROD_DEPLOY_DIR']
+                        env.STAGING_DEPLOY_DIR = props['STAGING_DEPLOY_DIR']
+                        env.PROD_DEPLOY_DIR = props['PROD_DEPLOY_DIR']
                     }
                 }
             }
