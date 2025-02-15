@@ -47,7 +47,7 @@ pipeline {
                                 sh "docker build -t quangnv1911/social-pro-client:${TAG} ."
                                 sh "docker push quangnv1911/social-pro-client:${TAG}"
                             } finally {
-                                sh "docker rmi -f $(docker images 'quangnv1911/social-pro-client' -q)"
+                                sh """docker rmi -f \$(docker images 'quangnv1911/social-pro-client' -q) || true"""
                             }
                         }
                     }
