@@ -13,9 +13,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
-             
-                
+                cleanWs()
+                git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'    
             }
         }
         stage('Install Dependencies') {
