@@ -12,7 +12,7 @@ pipeline {
         SCANNER_HOME= tool 'sonar-scanner'
     }
     parameters {
-        string(name: 'TARGET_BRANCH', defaultValue: 'dev')
+        string(name: 'TARGET_BRANCH')
         string(name: 'TAG')
     }
     
@@ -23,6 +23,11 @@ pipeline {
                 git branch: params.TARGET_BRANCH,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
              
                 
+            }
+        }
+        stage('Clean install') {
+            steps {
+                sh 'mvn clean install -DskipTests'
             }
         }
         stage('Sonarqube Analysis') {
