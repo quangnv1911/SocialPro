@@ -1,14 +1,26 @@
+'use client';
 import { AxiosRequestHeaders, InternalAxiosRequestConfig } from 'axios';
 import authStore from '@/stores/authState';
+import _ from 'lodash';
 
 export const requestSuccessInterceptor = async (
   config: InternalAxiosRequestConfig,
 ): Promise<InternalAxiosRequestConfig> => {
-  const { accessToken } = authStore();
+  const { accessToken } = authStore.getState();
+
+
+  console.log(config.method)
+  // Kiểm tra nếu method là POST, PUT, PATCH và có data
+  if (_.includes(['post', 'put', 'patch'], _.toLower(config.method)) && _.has(config, 'data')) {
+    console.log('a')
+    config.data = {
+      data: _.get(config, 'data', {}), // Lấy data hiện tại, mặc định là {}
+      timestamp: Math.floor(Date.now() / 1000),
+    };
+  }
   if (!accessToken) {
     return config;
   }
-
   return {
     ...config,
     withCredentials: false,

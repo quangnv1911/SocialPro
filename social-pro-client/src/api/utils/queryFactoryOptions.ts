@@ -1,4 +1,5 @@
-import { UseInfiniteQueryOptions, UseQueryOptions } from '@tanstack/react-query';
+import { UseInfiniteQueryOptions } from '@tanstack/react-query';
+import { UseQueryOptions } from '@/hooks/useQuery/useQuery.types';
 import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
 
 export const queryFactoryOptions = <TQueryFnData = unknown, TError = StandardizedApiError>(

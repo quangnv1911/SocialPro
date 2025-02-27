@@ -22,13 +22,6 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
       pool-name: ${SPRING_DATASOURCE_HIKARI_POOL_NAME}
-  flyway:
-    url: ${SPRING_FLYWAY_URL}
-    user: ${SPRING_FLYWAY_USER}
-    password: ${SPRING_FLYWAY_PASSWORD}
-    locations: ${SPRING_FLYWAY_LOCATION}
-    baseline-on-migrate: true
-    enabled: true
   jpa:
     hibernate:
       ddl-auto: validate
@@ -42,13 +35,21 @@ spring:
   logstash:
     host: ${SPRING_LOGSTASH_HOST}
     port: ${SPRING_LOGSTASH_PORT}
+  #Quartz config
   quartz:
     job-store-type: jdbc
     jdbc:
       initialize-schema: always
+    datasource:
+      url: ${SPRING_QUARTZ_URL}
+      username: ${SPRING_QUARTZ_USERNAME}
+      password: ${SPRING_QUARTZ_PASS}
+      driver-class-name: com.mysql.cj.jdbc.Driver
     properties:
       org:
         quartz:
+          jobStore:
+            tablePrefix: quartz/QRTZ_
           instanceName: ${SPRING_QUARTZ_INSTANCE_NAME}
         threadPool:
           threadCount: ${SPRING_QUARTZ_THREAD_COUNT}
@@ -127,3 +128,12 @@ otp:
 payment:
   token: ${PAYMENT_TOKEN}
   expire_time: ${PAYMENT_EXPIRE_TIME}
+
+# Flyway
+flyway:
+  url: ${SPRING_FLYWAY_URL}
+  user: ${SPRING_FLYWAY_USER}
+  password: ${SPRING_FLYWAY_PASSWORD}
+  locations: ${SPRING_FLYWAY_LOCATION}
+  baseline-on-migrate: true
+  enabled: true

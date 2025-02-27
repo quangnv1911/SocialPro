@@ -6,6 +6,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "withdraw-ref")
 @Setter
@@ -14,6 +16,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WithdrawRef extends BaseEntity {
+public class WithdrawRef extends BaseEntity<UUID> {
     Double price;
 }
