@@ -6,6 +6,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "product")
 @Setter
@@ -14,6 +16,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Product extends BaseEntity {
+public class Product extends BaseEntity<UUID> {
     Double price;
 }

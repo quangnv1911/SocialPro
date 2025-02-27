@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "user")
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User extends BaseEntity {
+public class User extends BaseEntity<UUID> {
 
     @Column(name = "email", nullable = false, unique = true)
     @NotNull
@@ -60,7 +61,14 @@ public class User extends BaseEntity {
     LocalDateTime otpExpiryDate;
 
     @Column(name = "enabled")
+    @Builder.Default
     Boolean enabled = false;
+
+    @Column(name = "api_key")
+    String apiKey;
+
+    @Column(name = "image")
+    String image;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)

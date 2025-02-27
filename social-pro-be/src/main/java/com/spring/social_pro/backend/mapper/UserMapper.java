@@ -1,6 +1,7 @@
 package com.spring.social_pro.backend.mapper;
 
 import com.spring.social_pro.backend.dto.request.user.UserCreationRequest;
+import com.spring.social_pro.backend.dto.response.UserResponse;
 import com.spring.social_pro.backend.entity.User;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
@@ -14,4 +15,5 @@ public interface UserMapper {
 
 
     UserCreationRequest toUserCreationRequest(User user);
+    UserResponse toUserResponse(User user);
 }

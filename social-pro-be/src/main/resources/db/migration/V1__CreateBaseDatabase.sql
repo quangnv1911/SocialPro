@@ -5,10 +5,11 @@ CREATE TABLE activity
     updated_by VARCHAR(255) NULL,
     created_at datetime NULL,
     updated_at datetime NULL,
-    is_deleted BIT(1)   NOT NULL,
+    is_deleted BIT(1)       NOT NULL,
     deleted_at datetime NULL,
     deleted_by VARCHAR(255) NULL,
-    type       SMALLINT NOT NULL,
+    type       VARCHAR(255) NOT NULL,
+    ip         VARCHAR(255) NOT NULL,
     CONSTRAINT pk_activity PRIMARY KEY (id)
 );
 
@@ -22,6 +23,7 @@ CREATE TABLE category
     is_deleted BIT(1) NOT NULL,
     deleted_at datetime NULL,
     deleted_by VARCHAR(255) NULL,
+    price DOUBLE NULL,
     CONSTRAINT pk_category PRIMARY KEY (id)
 );
 
@@ -73,6 +75,21 @@ CREATE TABLE discount
     CONSTRAINT pk_discount PRIMARY KEY (id)
 );
 
+CREATE TABLE invalid_token
+(
+    id          BINARY(16)   NOT NULL,
+    created_by  VARCHAR(255) NULL,
+    updated_by  VARCHAR(255) NULL,
+    created_at  datetime NULL,
+    updated_at  datetime NULL,
+    is_deleted  BIT(1)       NOT NULL,
+    deleted_at  datetime NULL,
+    deleted_by  VARCHAR(255) NULL,
+    token_value VARCHAR(255) NOT NULL,
+    expiry_time datetime     NOT NULL,
+    CONSTRAINT pk_invalid_token PRIMARY KEY (id)
+);
+
 CREATE TABLE invoice
 (
     id         BINARY(16)   NOT NULL,
@@ -83,7 +100,22 @@ CREATE TABLE invoice
     is_deleted BIT(1) NOT NULL,
     deleted_at datetime NULL,
     deleted_by VARCHAR(255) NULL,
+    price DOUBLE NULL,
     CONSTRAINT pk_invoice PRIMARY KEY (id)
+);
+
+CREATE TABLE `order`
+(
+    id         BINARY(16)   NOT NULL,
+    created_by VARCHAR(255) NULL,
+    updated_by VARCHAR(255) NULL,
+    created_at datetime NULL,
+    updated_at datetime NULL,
+    is_deleted BIT(1) NOT NULL,
+    deleted_at datetime NULL,
+    deleted_by VARCHAR(255) NULL,
+    amount     BIGINT NOT NULL,
+    CONSTRAINT pk_order PRIMARY KEY (id)
 );
 
 CREATE TABLE product
@@ -96,6 +128,7 @@ CREATE TABLE product
     is_deleted BIT(1) NOT NULL,
     deleted_at datetime NULL,
     deleted_by VARCHAR(255) NULL,
+    price DOUBLE NULL,
     CONSTRAINT pk_product PRIMARY KEY (id)
 );
 
@@ -128,7 +161,7 @@ CREATE TABLE user
     password             VARCHAR(255) NOT NULL,
     name                 VARCHAR(255) NOT NULL,
     avatar               VARCHAR(255) NULL,
-    money                VARCHAR(255) NULL,
+    money                BIGINT NULL,
     phone                VARCHAR(255) NULL,
     time_forgot_password VARCHAR(255) NULL,
     dob                  date NULL,
@@ -138,21 +171,6 @@ CREATE TABLE user
     enabled              BIT(1) NULL,
     role_id              BINARY(16)   NOT NULL,
     CONSTRAINT pk_user PRIMARY KEY (id)
-);
-
-CREATE TABLE validate_token
-(
-    id          BINARY(16)   NOT NULL,
-    created_by  VARCHAR(255) NULL,
-    updated_by  VARCHAR(255) NULL,
-    created_at  datetime NULL,
-    updated_at  datetime NULL,
-    is_deleted  BIT(1)       NOT NULL,
-    deleted_at  datetime NULL,
-    deleted_by  VARCHAR(255) NULL,
-    token_value VARCHAR(255) NOT NULL,
-    expiry_time datetime     NOT NULL,
-    CONSTRAINT pk_validate_token PRIMARY KEY (id)
 );
 
 CREATE TABLE `withdraw-ref`
@@ -165,11 +183,10 @@ CREATE TABLE `withdraw-ref`
     is_deleted BIT(1) NOT NULL,
     deleted_at datetime NULL,
     deleted_by VARCHAR(255) NULL,
+    price DOUBLE NULL,
     CONSTRAINT `pk_withdraw-ref` PRIMARY KEY (id)
 );
 
-ALTER TABLE activity
-    ADD CONSTRAINT uc_activity_type UNIQUE (type);
 
 ALTER TABLE user
     ADD CONSTRAINT uc_user_email UNIQUE (email);

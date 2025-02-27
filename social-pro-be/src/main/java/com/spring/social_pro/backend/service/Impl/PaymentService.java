@@ -6,6 +6,7 @@ import com.spring.social_pro.backend.dto.response.payment.GeneratePaymentRespons
 import com.spring.social_pro.backend.entity.User;
 import com.spring.social_pro.backend.repository.UserRepository;
 import com.spring.social_pro.backend.service.IPaymentService;
+import com.spring.social_pro.backend.service.ITelegramService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class PaymentService implements IPaymentService {
 
     RedisTemplate<String, GeneratePaymentResponse> keyDbTemplate;
     UserRepository userRepository;
+    ITelegramService telegramService;
 
     @Override
     public GeneratePaymentResponse generateToken(PaymentGenerateRequest request, UUID userId) {
@@ -54,6 +56,8 @@ public class PaymentService implements IPaymentService {
                 User updatedUser = user.get();
                 updatedUser.setMoney(updatedUser.getMoney() + request.getPayment().getAmount());
                 userRepository.save(updatedUser);
+                String message = updatedUser.getEmail() + " has paid " + request.getPayment().getAmount() + " with content: " + request.getPayment().getContent();
+                telegramService.sendMessage(message);
                 // Sau khi xác thực, có thể xóa OTP khỏi Redis
                 keyDbTemplate.delete(key);
             }

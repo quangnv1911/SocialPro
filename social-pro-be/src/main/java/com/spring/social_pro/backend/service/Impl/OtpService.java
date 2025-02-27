@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
-@Service
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Slf4j
+@Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OtpService implements IOtpService {
 
     @NonFinal
@@ -28,7 +28,6 @@ public class OtpService implements IOtpService {
     @Value("${otp.length}")
     Long OTP_LENGTH;
 
-    SecureRandom random;
     RedisTemplate<String, String> keyDbTemplate;
     /**
      * Sinh OTP và lưu vào Redis với key là OTP:{email} và TTL 5 phút.
@@ -38,6 +37,7 @@ public class OtpService implements IOtpService {
      */
     @Override
     public String generateOtp(String email) {
+        SecureRandom random = new SecureRandom();
         StringBuilder otp = new StringBuilder();
         for (int i = 0; i < OTP_LENGTH; i++) {
             otp.append(random.nextInt(10));  // Sinh ra một chữ số ngẫu nhiên từ 0 đến 9
