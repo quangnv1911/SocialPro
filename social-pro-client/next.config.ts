@@ -1,6 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
 import { createJiti, Jiti } from 'jiti';
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const jiti: Jiti = createJiti(fileURLToPath(import.meta.url));
 
@@ -44,6 +49,12 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/webp'],
     minimumCacheTTL: process.env.NODE_ENV === 'production' ? 60 : 0,
+    localPatterns: [
+      {
+        pathname: '@/assets/images/**',
+        search: '',
+      },
+    ],
     remotePatterns:
       process.env.CORS_RESOURCE?.split(',').map((remote) => ({
         hostname: remote,
@@ -64,4 +75,4 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['pino-pretty'],
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

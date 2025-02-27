@@ -1,46 +1,51 @@
 package com.spring.social_pro.backend.service.Impl;
 
+
+import java.util.*;
+import java.time.Instant;
+import lombok.AccessLevel;
 import com.nimbusds.jose.*;
+import java.text.ParseException;
+import lombok.extern.slf4j.Slf4j;
+import com.nimbusds.jwt.SignedJWT;
+import java.security.SecureRandom;
+import lombok.experimental.NonFinal;
+import com.nimbusds.jwt.JWTClaimsSet;
+import java.time.temporal.ChronoUnit;
+import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.experimental.FieldDefaults;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.openid.connect.sdk.AuthenticationResponse;
-import com.spring.social_pro.backend.dto.request.authen.AuthenticateRequest;
-import com.spring.social_pro.backend.dto.request.authen.RegisterRequest;
-import com.spring.social_pro.backend.dto.request.authen.VerifyAccountRequest;
-import com.spring.social_pro.backend.dto.response.authen.AuthenticateResponse;
+import org.springframework.stereotype.Service;
+import com.spring.social_pro.backend.service.*;
+import jakarta.servlet.http.HttpServletRequest;
+import com.spring.social_pro.backend.entity.Role;
 import com.spring.social_pro.backend.entity.User;
-import com.spring.social_pro.backend.exception.AppException;
+import com.spring.social_pro.backend.entity.Activity;
+import com.spring.social_pro.backend.enums.ActivityType;
 import com.spring.social_pro.backend.exception.ErrorCode;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.beans.factory.annotation.Value;
+import com.spring.social_pro.backend.exception.AppException;
+import com.spring.social_pro.backend.constant.PredefinedRole;
+import com.spring.social_pro.backend.repository.RoleRepository;
+import com.spring.social_pro.backend.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.spring.social_pro.backend.exception.ExpiredTokenException;
 import com.spring.social_pro.backend.exception.InvalidTokenException;
 import com.spring.social_pro.backend.repository.InvalidTokenRepository;
-import com.spring.social_pro.backend.repository.UserRepository;
-import com.spring.social_pro.backend.service.IAuthenticationService;
-import com.spring.social_pro.backend.service.IOtpService;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
+import com.spring.social_pro.backend.dto.request.authen.RegisterRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import com.spring.social_pro.backend.dto.request.authen.AuthenticateRequest;
+import com.spring.social_pro.backend.dto.request.authen.VerifyAccountRequest;
+import com.spring.social_pro.backend.dto.response.authen.AuthenticateResponse;
+import com.spring.social_pro.backend.repository.specification.UserSpecification;
 
-import java.security.SecureRandom;
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
 public class AuthenticationService implements IAuthenticationService {
     @NonFinal
     @Value("${jwt.secret}")
@@ -66,31 +71,43 @@ public class AuthenticationService implements IAuthenticationService {
     @Value("${bcrypt.cost}")
     protected Integer BCRYPT_COST;
 
-    InvalidTokenRepository invalidTokenRepository;
-    UserRepository userRepository;
     IOtpService otpService;
+    IEmailService emailService;
+    UserRepository userRepository;
+    RoleRepository roleRepository;
+    ITelegramService telegramService;
+    IActivityService activityService;
+    InvalidTokenRepository invalidTokenRepository;
 
     @Override
-    public AuthenticateResponse authenticate(AuthenticateRequest request) {
+    public AuthenticateResponse authenticate(AuthenticateRequest request, HttpServletRequest requestHeader) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-        var user = userRepository
-                .findByEmail(request.getEmail())
+        Specification<User> spec = UserSpecification.findByEmailOrUserName(request.getUserCredential());
+        var users = userRepository.findAll(spec);
+        var user = users.stream()
+                .findFirst()
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
+        if (!user.getEnabled()) throw new AppException(ErrorCode.USER_NOT_ENABLED);
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         var token = generateToken(user);
         var refreshToken = generateRefreshToken();
         String role = user.getRole().getRoleName();
+        String message = user.getEmail() + " has logg in successfully";
 
+        activityService.addActivity(ActivityType.Login, message, requestHeader);
+        telegramService.sendMessage(message);
         return AuthenticateResponse.builder()
                 .accessToken(token)
                 .refreshToken(refreshToken)
                 .role(role)
-                .authenticated(true)
+                .userName(user.getUserName())
+                .image(user.getImage())
+                .email(user.getEmail())
+                .isAuthenticated(true)
                 .build();
     }
 
@@ -100,11 +117,13 @@ public class AuthenticationService implements IAuthenticationService {
                 .findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         var checkValidateOtp = otpService.validateOtp(request.getOtp(), user.getEmail());
-        if(!checkValidateOtp) {
+        if (!checkValidateOtp) {
             throw new AppException(ErrorCode.INVALID_OTP);
         }
         user.setEnabled(true);
         userRepository.save(user);
+        String message = request.getEmail() + " has verified your account";
+        telegramService.sendMessage(message);
         return true;
     }
 
@@ -141,7 +160,7 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public String generateToken(User user) {
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail())
@@ -168,23 +187,48 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public String handleLogout() {
+        Activity activity = Activity.builder()
+                .type(ActivityType.Logout)
+                .message("You have logged out")
+                .build();
         return "";
     }
 
     @Override
-    public String handleRegister(RegisterRequest request) {
-        // Check if account has exist
-        if(userRepository.existsUserByEmailOrUserName(request.getEmail().toLowerCase(), request.getUserName().toLowerCase())){
+    @Transactional
+    public String handleRegister(RegisterRequest registerRequest, HttpServletRequest request) {
+        // Check if account has existed
+        if (!userRepository.existsUserByEmailIgnoreCase(registerRequest.getEmail()) || !userRepository.existsUserByEmailIgnoreCase(registerRequest.getUserName())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(BCRYPT_COST);
-
+        Optional<Role> userRole = roleRepository.findByRoleName(PredefinedRole.USER_ROLE);
+        if (userRole.isEmpty()) {
+            throw new AppException(ErrorCode.ROLE_NOT_EXISTED);
+        }
         User newUser = new User()
-                .setEmail(request.getEmail())
-                .setUserName(request.getUserName())
-                .setPassword(passwordEncoder.encode(request.getPassword()));
+                .setEmail(registerRequest.getEmail())
+                .setRole(userRole.get())
+                .setUserName(registerRequest.getUserName())
+                .setEnabled(false)
+                .setApiKey(generateRefreshToken())
+                .setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         userRepository.save(newUser);
-        otpService.generateOtp(request.getEmail());
+
+        // Send email to verify account
+        String otp = otpService.generateOtp(registerRequest.getEmail());
+        String verificationLink = String.format(
+                "http://localhost:3000/verify-account?account=%s&otp=%s",
+                newUser.getEmail(),
+                otp
+        );
+        emailService.sendWelcomeEmail(newUser.getEmail(), newUser.getUserName(), verificationLink);
+
+
+        String message = registerRequest.getEmail() + " has registered your account";
+        activityService.addActivity(ActivityType.Register, message, request);
+
+        telegramService.sendMessage(message);
         return "User registered successfully";
     }
 
@@ -193,10 +237,11 @@ public class AuthenticationService implements IAuthenticationService {
 
         Optional.ofNullable(user.getRole()).ifPresent(role -> {
             stringJoiner.add(role.getRoleName());
-
-//            Optional.ofNullable(role.getPermissions()).ifPresent(permissions ->
-//                    permissions.forEach(permission -> stringJoiner.add(permission.getName())));
         });
+        stringJoiner.add(user.getEmail());
+        stringJoiner.add(user.getUserName());
+        stringJoiner.add(user.getImage());
+        stringJoiner.add(user.getApiKey());
         return stringJoiner.toString();
     }
 
@@ -214,4 +259,6 @@ public class AuthenticationService implements IAuthenticationService {
         calendar.add(Calendar.MILLISECOND, Integer.parseInt(timeValid));
         return calendar.getTime();
     }
+
+
 }
