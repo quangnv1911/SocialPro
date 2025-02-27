@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "coupon_used")
 @Setter
@@ -13,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CouponUsed extends BaseEntity {
+public class CouponUsed extends BaseEntity<UUID> {
 
 
     @ManyToOne(fetch = FetchType.LAZY)

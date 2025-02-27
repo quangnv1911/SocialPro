@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -17,7 +18,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "invalid_token")
-public class InvalidToken extends BaseEntity {
+public class InvalidToken extends BaseEntity<UUID> {
     @Column(name = "token_value", nullable = false)
     String tokenValue;
 

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,9 +27,11 @@ public class SecurityConfiguration {
     private final CustomJwtDecoder jwtDecoder;
 
     private static final String[] PUBLIC_ENDPOINT = {
-            "/api/v1/auth/token",
-            "/api/v1/Auth/authen",
-
+            "/api/v1/auth/**",
+            "/api/v1/captcha/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/swagger-ui/",
     };
 
     @Bean
@@ -49,6 +52,12 @@ public class SecurityConfiguration {
         return httpSecurity.build();
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+                "/swagger-ui/**", "/v3/api-docs/**"
+        );
+    }
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();

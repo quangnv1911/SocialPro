@@ -1,34 +1,39 @@
 // LayoutComponent.tsx
-import { Suspense } from 'react';
+import { ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import FooterComponent from './footer';
-import HeaderComponent from './header';
 import FallbackRender from './error-boundary';
+import { MainSidebar } from '@/layout/sider';
+import Header from '@/layout/header';
 
 const LayoutComponent = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+                           children,
+                         }: Readonly<{
+  children: ReactNode;
 }>) => {
+
   return (
-    <div className="w-full h-full">
-      <HeaderComponent />
-      <div className="px-4 py-20 flex flex-col min-h-[calc(100vh-200px)]">
-        {/* Đảm bảo rằng fallbackRender là một component hợp lệ */}
-        <ErrorBoundary fallbackRender={FallbackRender}>
-          <Suspense
-            fallback={
-              <div className="w-full h-full flex justify-center items-center">
-                <span>Loading...</span>
-              </div>
-            }
-          >
-            {children}
-          </Suspense>
-        </ErrorBoundary>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="flex">
+        <MainSidebar className="h-[calc(100vh-4rem)] sticky top-16 shrink-0 border-r" />
+
+        <main className="flex-1 p-6 space-y-6 h-[2000px]">
+          <ErrorBoundary fallbackRender={FallbackRender}>
+            <Suspense
+              fallback={
+                <div className="w-full h-full flex justify-center items-center">
+                  <span>Loading...</span>
+                </div>
+              }
+            >
+              {children}
+            </Suspense>
+          </ErrorBoundary>
+        </main>
       </div>
-      <FooterComponent />
     </div>
+
+
   );
 };
 

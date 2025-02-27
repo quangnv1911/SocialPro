@@ -95,7 +95,7 @@ pipeline {
                 string(credentialsId: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN', variable: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN'),
                 string(credentialsId: 'JENKINS_TELEGRAM_CHAT', variable: 'JENKINS_TELEGRAM_CHAT')
                 ]) {
-                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
+                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/job/${env.BUILD_NUMBER}/"
                     def message = "✅ *Build Successful!* 🎉\n" +
                                 "Project: `${env.JOB_NAME}`\n" +
                                 "Branch: `${env.GIT_BRANCH}`\n" +
@@ -118,11 +118,11 @@ pipeline {
                 string(credentialsId: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN', variable: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN'),
                 string(credentialsId: 'JENKINS_TELEGRAM_CHAT', variable: 'JENKINS_TELEGRAM_CHAT')
                 ]) {
-                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
+                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/job/${env.BUILD_NUMBER}/"
                     def message = "❌ *Build Failed!* 😞\n" +
-                                "Project: `${env.JOB_NAME}`\n" +
-                                "Branch: `${env.GIT_BRANCH}`\n" +
-                                "Tag: `${env.TAG}`\n" +
+                                "Project: ${env.JOB_NAME}\n" +
+                                "Branch: ${env.GIT_BRANCH}\n" +
+                                "Tag: ${env.TAG}\n" +
                                 "🔗 [View Build](${buildUrl})"
 
                     sh """
