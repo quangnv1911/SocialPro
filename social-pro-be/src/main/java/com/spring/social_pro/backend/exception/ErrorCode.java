@@ -20,7 +20,11 @@ public enum ErrorCode {
     INVALID_CAPTCHA(1011, "Captcha is not valid", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1012, "Role not existed", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_NOT_ENABLED(1013, "User not enabled", HttpStatus.BAD_REQUEST),
-    CONCURRENCY_FAILURE(1014, "Concurrency failure", HttpStatus.CONFLICT),;
+    CONCURRENCY_FAILURE(1014, "Concurrency failure", HttpStatus.CONFLICT),
+    CATEGORY_NOT_EXIST(1015, "Category not existed", HttpStatus.BAD_REQUEST),
+    PRODUCT_NOT_EXIST(1016, "Product not existed", HttpStatus.BAD_REQUEST),
+    PRODUCT_DETAIL_NOT_EXIST(1017, "Product detail not existed", HttpStatus.BAD_REQUEST),
+    USER_ROLE_NOT_FOUND(1018, "User role not existed", HttpStatus.BAD_REQUEST),;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

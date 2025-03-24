@@ -23,6 +23,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  metadata: {
+    title: 'Social Pro',
+    description: 'The best place for social media growth services',
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
@@ -56,9 +60,14 @@ const nextConfig: NextConfig = {
       },
     ],
     remotePatterns:
-      process.env.CORS_RESOURCE?.split(',').map((remote) => ({
-        hostname: remote,
-      })) ?? [],
+    // process.env.CORS_RESOURCE?.split(',').map((remote) => ({
+    //   hostname: remote,
+    // })) ?? [],
+      [
+        { hostname: 'example.com' },
+        { hostname: 'cdn.example.org' },
+        { hostname: 'img.vietqr.io' },
+      ],
   },
   logging: {
     fetches: {

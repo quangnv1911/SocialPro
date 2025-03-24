@@ -39,6 +39,7 @@ public class QuartzConfig {
         SchedulerFactoryBean factoryBean = new SchedulerFactoryBean();
         factoryBean.setDataSource(quartzDataSource());
         factoryBean.setJobFactory(new SpringBeanJobFactory());
+        factoryBean.setOverwriteExistingJobs(false);
         return factoryBean;
     }
 

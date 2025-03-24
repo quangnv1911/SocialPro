@@ -39,7 +39,7 @@ spring:
   quartz:
     job-store-type: jdbc
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
     datasource:
       url: ${SPRING_QUARTZ_URL}
       username: ${SPRING_QUARTZ_USERNAME}
@@ -49,7 +49,10 @@ spring:
       org:
         quartz:
           jobStore:
-            tablePrefix: quartz/QRTZ_
+            isClustered: true
+            dataSource: quartzDataSource
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            tablePrefix: QRTZ_
           instanceName: ${SPRING_QUARTZ_INSTANCE_NAME}
         threadPool:
           threadCount: ${SPRING_QUARTZ_THREAD_COUNT}
