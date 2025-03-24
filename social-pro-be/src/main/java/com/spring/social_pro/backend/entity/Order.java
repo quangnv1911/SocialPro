@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "order")
 @Setter
@@ -15,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Order  extends BaseEntity {
+public class Order  extends BaseEntity<UUID> {
     @Column(name = "amount", nullable = false)
     Long amount;
 }

@@ -8,4 +8,7 @@ public enum ActivityType {
     LoginFail,
     Purchase,
     ChangePassword,
+    CreateCategory,
+    DeleteCategory,
+    UpdateCategory,
 }

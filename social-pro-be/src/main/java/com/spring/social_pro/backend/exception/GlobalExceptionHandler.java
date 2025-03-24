@@ -3,6 +3,7 @@ package com.spring.social_pro.backend.exception;
 import com.spring.social_pro.backend.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,6 +28,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    @ExceptionHandler(value = SchedulerException.class)
+    ResponseEntity<ApiResponse<?>> handleSchedulerException(Exception e) {
+        log.error(e.getMessage(), e);
+        ApiResponse<?> apiResponse = new ApiResponse<>();
+        apiResponse.setMessage(e.getMessage());
+        apiResponse.setStatus(500);
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse<?>> handlingAppException(AppException exception) {
         log.error(exception.getMessage(), exception);
@@ -51,8 +60,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        String enumKey = exception.getFieldError().getDefaultMessage();
+    ResponseEntity<ApiResponse<?>> handlingValidation(MethodArgumentNotValidException exception) {
+        String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
 
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
         Map attributes = null;
@@ -70,7 +79,7 @@ public class GlobalExceptionHandler {
             log.error(e.getMessage(), e);
         }
 
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<?> apiResponse = new ApiResponse<>();
 
         apiResponse.setStatus(errorCode.getCode());
         apiResponse.setMessage(

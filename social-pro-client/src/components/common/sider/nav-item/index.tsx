@@ -1,38 +1,48 @@
 'use client';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import ButtonSider from '@/components/common/sider/button';
+import templateStore from '@/stores/templateStore';
 
-export const Index = ({ icon: Icon, title, href, isCollapsed }: {
-  icon: any
-  title?: string
-  href: string
-  isCollapsed?: boolean
-}) => {
-  const router = useRouter();
-  const button = (
-    <Button
-      variant="ghost"
-      className={cn(
-        'w-full flex items-center gap-3 py-2 hover:bg-blue-800',
-        isCollapsed && 'justify-center',
-      )}
-      onClick={() => router.push(href)}
-    >
-      <Icon className="h-5 w-5" />
-      {!isCollapsed && <span>{title}</span>}
-    </Button>
-  );
+interface NavItemProps {
+  icon: any;
+  title: string;
+  isActive?: boolean;
+  alert?: string;
+  onClick?: () => void;
+}
 
-  return isCollapsed ? (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent side="right">{title}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  ) : (
-    button
-  );
+const NavItem = ({
+                   icon: Icon,
+                   title,
+                   isActive,
+                   alert,
+                   onClick,
+                 }: NavItemProps) => {
+  const { sidebarCollapsed } = templateStore();
+  if (sidebarCollapsed) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ButtonSider icon={Icon} title={title} isActive={isActive} onClick={onClick} alert={alert} />
+          </TooltipTrigger>
+          <TooltipContent side="right" className="flex items-center gap-4">
+            {title}
+            {alert && (
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs text-white">
+                  {alert}
+                </span>
+            )}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
+  return <ButtonSider icon={Icon} title={title} isActive={isActive} onClick={onClick} alert={alert} />;
+
 };
+
+export default NavItem;

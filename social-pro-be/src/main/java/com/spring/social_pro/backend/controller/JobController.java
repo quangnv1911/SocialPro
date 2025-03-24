@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -26,36 +27,31 @@ public class JobController {
     JobService jobService;
 
     @PostMapping("/schedule")
-    public ApiResponse<?> scheduleJob(@RequestBody CreateJobDto job) {
-        try {
-            jobService.scheduleJob(job);
-            return ApiResponse.<String>builder()
-                    .status(HttpStatus.CREATED.value())
-                    .data("Create job successfully")
-                    .build();
-        } catch (SchedulerException e) {
-            log.error(e.getMessage());
-            return ApiResponse.<String>builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .data(e.getMessage())
-                    .build();
-        }
+    public ApiResponse<?> scheduleJob(@RequestBody CreateJobDto job) throws SchedulerException {
+        jobService.scheduleJob(job);
+        return ApiResponse.<String>builder()
+                .status(HttpStatus.CREATED.value())
+                .data("Create job successfully")
+                .build();
+
     }
 
-    @GetMapping("/schedule")
+    @GetMapping("/")
     public ApiResponse<?> getAllJobs() throws SchedulerException {
 
-            List<JobResponseDto> jobResponseDtoList = jobService.getAllJobs();
-            if (jobResponseDtoList.isEmpty()) {
-                return ApiResponse.<List<JobResponseDto>>builder()
-                        .status(HttpStatus.NO_CONTENT.value())
-                        .data(null)
-                        .build();
-            }
-            return ApiResponse.<List<JobResponseDto>>builder()
-                    .status(HttpStatus.OK.value())
-                    .data(jobResponseDtoList)
-                    .build();
+        List<JobResponseDto> jobResponseDtoList = jobService.getAllJobs();
+        return ApiResponse.<List<JobResponseDto>>builder()
+                .status(HttpStatus.OK.value())
+                .data(jobResponseDtoList)
+                .build();
+    }
 
+    @DeleteMapping("/")
+    public ApiResponse<?> deleteJob(@RequestParam String jobName) throws SchedulerException {
+        jobService.deleteJob(jobName);
+        return ApiResponse.<String>builder()
+                .status(HttpStatus.OK.value())
+                .data("Remove job successfully")
+                .build();
     }
 }

@@ -3,8 +3,8 @@
 pipeline {
     agent any
     environment {
-        DOCKER_BUILDKIT='1'
-        TAG = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}"
+        DOCKER_BUILDKIT = '1'
+        TAG = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
     }
     stages {
         stage('Load .env file') {
@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-        stage ('Check branch') {
+        stage('Check branch') {
             steps {
                 echo "${env.GIT_BRANCH}"
             }
@@ -53,26 +53,32 @@ pipeline {
             }
         }
 
-        stage('Deploy to staging'){
+        stage('Deploy to staging') {
             when {
-                expression { 
+                expression {
                     env.GIT_BRANCH == 'dev'
                 }
             }
             steps {
+                // script {
+                //     sshagent(credentials : ['staging-social-pro-ssh']) {
+                //         sh """
+                //             ssh -o StrictHostKeyChecking=no ${STAGING_SSH_USER}@${STAGING_SERVER_IP} 'cd ${STAGING_DEPLOY_DIR} && ./deploy.sh'
+                //         """
+                //     }
+                // }
                 script {
-                    sshagent(credentials : ['staging-social-pro-ssh']) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${STAGING_SSH_USER}@${STAGING_SERVER_IP} 'cd ${STAGING_DEPLOY_DIR} && ./deploy.sh'
-                        """
-                    }
+                    // Make the POST request using curl
+                    sh '''
+                        curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_98g22o5YUFVHlKOzj9vKPTyN2SDG/tKybBxqhQs
+                    '''
                 }
             }
         }
 
-        stage('Deploy to production'){
+        stage('Deploy to production') {
             when {
-                expression { 
+                expression {
                     env.GIT_BRANCH == 'main'
                 }
             }
@@ -102,16 +108,16 @@ pipeline {
                                 "Tag: `${env.TAG}`\n" +
                                 "🔗 [View Build](${buildUrl})"
 
-                    sh """
+                    sh '''
                         curl -s -X POST "https://api.telegram.org/bot${SOCIAL_PRO_TELEGRAM_BOT_TOKEN}/sendMessage" \
                         -d chat_id="${JENKINS_TELEGRAM_CHAT}" \
                         -d parse_mode="Markdown" \
                         -d text="${message}"
-                    """
+                    '''
                 }
             }
         }
-    
+
         failure {
             script {
                 withCredentials([
@@ -125,15 +131,14 @@ pipeline {
                                 "Tag: ${env.TAG}\n" +
                                 "🔗 [View Build](${buildUrl})"
 
-                    sh """
+                    sh '''
                         curl -s -X POST "https://api.telegram.org/bot${SOCIAL_PRO_TELEGRAM_BOT_TOKEN}/sendMessage" \
                         -d chat_id="${JENKINS_TELEGRAM_CHAT}" \
                         -d parse_mode="Markdown" \
                         -d text="${message}"
-                    """
+                    '''
                 }
             }
         }
     }
-
 }

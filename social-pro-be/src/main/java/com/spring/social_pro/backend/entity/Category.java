@@ -17,12 +17,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Category  extends BaseEntity<UUID> {
-    @Column(name = "category_name")
-    String categoryName;
-    @Column(name = "category_description")
-    String categoryDescription;
-    @Column(name = "category_image")
-    String categoryImage;
+    @Column(name = "name")
+    String name;
+    @Column(name = "description")
+    String description;
+    @Column(name = "image")
+    String image;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "big_category", nullable = false)

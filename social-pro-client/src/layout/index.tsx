@@ -1,3 +1,4 @@
+'user client';
 // LayoutComponent.tsx
 import { ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -10,14 +11,13 @@ const LayoutComponent = ({
                          }: Readonly<{
   children: ReactNode;
 }>) => {
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="flex">
         <MainSidebar className="h-[calc(100vh-4rem)] sticky top-16 shrink-0 border-r" />
 
-        <main className="flex-1 p-6 space-y-6 h-[2000px]">
+        <main className="flex-1 p-6 space-y-6">
           <ErrorBoundary fallbackRender={FallbackRender}>
             <Suspense
               fallback={

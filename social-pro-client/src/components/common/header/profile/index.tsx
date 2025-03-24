@@ -10,12 +10,25 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import SanitizedHTML from '@/components/common/sanitizeText';
+import { useMutation } from '@/hooks';
+import { LoginMutationResponse, LogoutMutationRequest } from '@/api/actions/auth/auth.types';
+import { toast } from 'react-toastify';
+import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
 
 const UserProfileHeader: FC = (): ReactElement => {
-  const { isAuthenticated, userName } = authStore();
-  console.log(isAuthenticated);
-  const handleLogout = () => {
+  const { isAuthenticated, userName, clearTokens, accessToken } = authStore();
 
+  const { mutateAsync: logout, isPending: isLogout } = useMutation('logoutMutation', {
+    onSuccess: () => {
+      toast.success('Đăng nhập thành công');
+      clearTokens();
+    },
+    onError: (error: StandardizedApiError) => {
+      toast.error(error.message);
+    },
+  });
+  const handleLogout: () => Promise<void> = async () => {
+    await logout({ accessToken } as LogoutMutationRequest);
   };
   return (
     <div className="flex items-center gap-2">

@@ -45,9 +45,8 @@ const LoginModal: FC = (): ReactElement => {
     ...captchaQueries.get(),
   });
   const { mutateAsync: login, isPending: isAuthenticating } = useMutation('loginMutation', {
-    onSuccess: (res:LoginMutationResponse) => {
+    onSuccess: (res: LoginMutationResponse) => {
       toast.success('Đăng nhập thành công');
-      console.log(res)
       setAuthData(res.accessToken, res.refreshToken, res.role, res.userName, res.email, res.image, res.isAuthenticated);
       setShowLogin(false);
     },

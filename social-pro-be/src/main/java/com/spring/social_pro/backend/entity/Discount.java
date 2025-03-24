@@ -18,7 +18,7 @@ import java.util.UUID;
 public class Discount extends BaseEntity<UUID> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    Product product;
 
     @Column(name = "amount", nullable = false)
     Integer amount;
