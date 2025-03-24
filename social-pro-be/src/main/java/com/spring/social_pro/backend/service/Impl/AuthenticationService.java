@@ -3,6 +3,9 @@ package com.spring.social_pro.backend.service.Impl;
 
 import java.util.*;
 import java.time.Instant;
+
+import com.spring.social_pro.backend.entity.InvalidToken;
+import com.spring.social_pro.backend.mapper.UserMapper;
 import lombok.AccessLevel;
 import com.nimbusds.jose.*;
 import java.text.ParseException;
@@ -105,7 +108,7 @@ public class AuthenticationService implements IAuthenticationService {
                 .refreshToken(refreshToken)
                 .role(role)
                 .userName(user.getUserName())
-                .image(user.getImage())
+                .image(user.getAvatar())
                 .email(user.getEmail())
                 .isAuthenticated(true)
                 .build();
@@ -158,7 +161,6 @@ public class AuthenticationService implements IAuthenticationService {
         return signedJWT;
     }
 
-    @Override
     public String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
 
@@ -166,10 +168,14 @@ public class AuthenticationService implements IAuthenticationService {
                 .subject(user.getEmail())
                 .issuer(ISSUER_JWT)
                 .issueTime(new Date())
+                .audience(AUDIENCE)
                 .expirationTime(new Date(
-                        Instant.now().plus(ACCESS_TOKEN_EXPIRATION, ChronoUnit.MICROS).toEpochMilli()))
+                        Instant.now().plus(ACCESS_TOKEN_EXPIRATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", buildScope(user))
+                .claim("role", user.getRole().getRoleName())
+                .claim("email", user.getEmail())
+                .claim("userName", user.getUserName())
+                .claim("id", user.getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -186,7 +192,8 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     @Override
-    public String handleLogout() {
+    public String handleLogout(String accessToken) {
+
         Activity activity = Activity.builder()
                 .type(ActivityType.Logout)
                 .message("You have logged out")
@@ -232,18 +239,6 @@ public class AuthenticationService implements IAuthenticationService {
         return "User registered successfully";
     }
 
-    private String buildScope(User user) {
-        StringJoiner stringJoiner = new StringJoiner(" ");
-
-        Optional.ofNullable(user.getRole()).ifPresent(role -> {
-            stringJoiner.add(role.getRoleName());
-        });
-        stringJoiner.add(user.getEmail());
-        stringJoiner.add(user.getUserName());
-        stringJoiner.add(user.getImage());
-        stringJoiner.add(user.getApiKey());
-        return stringJoiner.toString();
-    }
 
     private static String generateRefreshToken() {
         int byteLength = 10;

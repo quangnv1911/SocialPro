@@ -50,4 +50,8 @@ export type RegisterMutationArguments = {
   captchaId?: number;
 }
 
+export type LogoutMutationRequest = {
+  accessToken: string
+}
+
 // API_ACTION_TYPES

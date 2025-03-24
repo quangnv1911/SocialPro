@@ -1,7 +1,10 @@
 import { AxiosError } from 'axios';
 import zod from 'zod';
-import { ApiError } from './apiError';
-import { formErrorDataSchema, basicErrorDataSchema } from './apiError';
+import {
+  ApiError,
+  basicErrorDataSchema,
+  formErrorDataSchema,
+} from '@/context/apiClient/apiClientContextController/apiError/apiError';
 
 export type FormErrorData = zod.infer<typeof formErrorDataSchema>;
 

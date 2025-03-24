@@ -1,65 +1,62 @@
 import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
-import { encryptStorage } from '@/utils/helper/storage';
 
 interface AuthState {
-  isAuthen: boolean;
+  isAuthenticated: boolean;
   accessToken: string | null;
-  campusCode: string | null;
   refreshToken: string | null;
   role: string | null;
-  name: string | null;
+  userName: string | null;
   email: string | null;
   image: string;
   setAuthData: (
-    accessToken: string,
-    refreshToken: string,
+    accessToken: string | null,
+    refreshToken: string | null,
     role: string,
-    name: string,
+    userName: string,
     email: string,
     image: string,
+    isAuthenticated: boolean,
   ) => void;
   clearTokens: () => void;
-  setCampusCode: (campusCode: string) => void;
   updateToken: (accessToken: string, refreshToken: string) => void;
 }
 
 const authStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      isAuthen: false,
+      isAuthenticated: false,
       accessToken: null,
-      campusCode: null,
       refreshToken: null,
       role: null,
-      name: null,
+      userName: null,
       email: null,
       image: '',
-      setCampusCode: (campusCode: string): void => set({ campusCode }),
       setAuthData: (
-        accessToken: string,
-        refreshToken: string,
+        accessToken: string | null,
+        refreshToken: string | null,
         role: string,
-        name: string,
+        userName: string,
         email: string,
         image: string,
+        isAuthenticated: boolean,
       ): void =>
         set({
-          isAuthen: true,
           accessToken,
           refreshToken,
           role,
-          name,
+          userName,
           email,
           image,
+          isAuthenticated,
         }),
       clearTokens: (): void =>
         set({
-          isAuthen: false,
+          isAuthenticated: false,
           accessToken: null,
           refreshToken: null,
           role: null,
-          name: null,
+          userName: null,
           email: null,
           image: '',
         }),
@@ -72,8 +69,6 @@ const authStore = create<AuthState>()(
     }),
     {
       name: 'app-storage',
-      serialize: (state): string => encryptStorage.encryptValue(JSON.stringify(state)),
-      deserialize: (encryptedState) => JSON.parse(encryptStorage.decryptValue(encryptedState)),
     },
   ),
 );

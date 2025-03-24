@@ -8,11 +8,8 @@ export const requestSuccessInterceptor = async (
 ): Promise<InternalAxiosRequestConfig> => {
   const { accessToken } = authStore.getState();
 
-
-  console.log(config.method)
   // Kiểm tra nếu method là POST, PUT, PATCH và có data
   if (_.includes(['post', 'put', 'patch'], _.toLower(config.method)) && _.has(config, 'data')) {
-    console.log('a')
     config.data = {
       data: _.get(config, 'data', {}), // Lấy data hiện tại, mặc định là {}
       timestamp: Math.floor(Date.now() / 1000),

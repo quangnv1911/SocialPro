@@ -4,17 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Data
 public class PaymentCallbackData {
     @JsonProperty("transaction_id")
     String transactionId;
-    Long amount;
+    BigDecimal amount;
     String content;
     LocalDate date;
 
