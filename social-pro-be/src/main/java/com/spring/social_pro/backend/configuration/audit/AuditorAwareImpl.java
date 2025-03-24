@@ -17,8 +17,11 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(username)
+        var userData = SecurityContextHolder.getContext().getAuthentication();
+        if (userData == null) {
+            return Optional.of("System");
+        }
+        return userRepository.findByEmail(userData.getName())
                 .map(User::getEmail) // Lấy email của User nếu tìm thấy
                 .or(() -> Optional.of("System"));
     }

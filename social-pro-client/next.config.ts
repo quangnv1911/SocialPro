@@ -1,6 +1,11 @@
 import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
 import { createJiti, Jiti } from 'jiti';
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const jiti: Jiti = createJiti(fileURLToPath(import.meta.url));
 
@@ -18,6 +23,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  metadata: {
+    title: 'Social Pro',
+    description: 'The best place for social media growth services',
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
@@ -44,10 +53,21 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/webp'],
     minimumCacheTTL: process.env.NODE_ENV === 'production' ? 60 : 0,
+    localPatterns: [
+      {
+        pathname: '@/assets/images/**',
+        search: '',
+      },
+    ],
     remotePatterns:
-      process.env.CORS_RESOURCE?.split(',').map((remote) => ({
-        hostname: remote,
-      })) ?? [],
+    // process.env.CORS_RESOURCE?.split(',').map((remote) => ({
+    //   hostname: remote,
+    // })) ?? [],
+      [
+        { hostname: 'example.com' },
+        { hostname: 'cdn.example.org' },
+        { hostname: 'img.vietqr.io' },
+      ],
   },
   logging: {
     fetches: {
@@ -64,4 +84,4 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['pino-pretty'],
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

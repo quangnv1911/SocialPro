@@ -6,7 +6,11 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.spring.social_pro.backend.exception.ExpiredTokenException;
 import com.spring.social_pro.backend.exception.InvalidTokenException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,18 +18,18 @@ import java.text.ParseException;
 import java.util.Date;
 
 @Component
+@Slf4j
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class JwtUtils {
-    @NonFinal
     @Value("${jwt.secret}")
-    protected String SECRET_KEY;
+    String SECRET_KEY;
 
-    @NonFinal
     @Value("${jwt.audience}")
-    protected String AUDIENCE;
+    String AUDIENCE;
 
-    @NonFinal
     @Value("${jwt.issuer}")
-    protected String ISSUER_JWT;
+    String ISSUER_JWT;
 
     /**
      * Lấy thông tin người dùng từ accessToken

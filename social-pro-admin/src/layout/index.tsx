@@ -15,11 +15,14 @@ const LayoutComponent = () => {
       <div className="flex-1">
         <div className="h-16" />
         <HeaderComponent />
-        <main className="p-6 min-h-screen">
+        <main
+          className="p-6 min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800
+              dark:text-gray-200"
+        >
           <ErrorBoundary fallbackRender={FallbackRender}>
             <Suspense
               fallback={
-                <div className="w-full h-full flex justify-center items-center">
+                <div className=" w-full h-full flex justify-center items-center">
                   <span>Loading...</span>
                 </div>
               }

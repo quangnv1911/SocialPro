@@ -5,6 +5,8 @@ import com.spring.social_pro.backend.constant.PredefinedRole;
 import com.spring.social_pro.backend.entity.Role;
 import com.spring.social_pro.backend.repository.RoleRepository;
 import com.spring.social_pro.backend.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,15 +20,16 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
 public class ApplicationInitConfiguration {
     @Bean
+    @Transactional
     @ConditionalOnProperty(
             prefix = "spring",
-            value = "datasource.driverClassName",
+            value = "datasource.driver-class-name",
             havingValue = "com.mysql.cj.jdbc.Driver"
     )
     ApplicationRunner applicationRunner(RoleRepository roleRepository) {
@@ -35,11 +38,13 @@ public class ApplicationInitConfiguration {
         return args -> {
             Optional<Role> userRole = roleRepository.findByRoleName(PredefinedRole.USER_ROLE);
             if (userRole.isEmpty()) {
-                roleRepository.save(Role.builder()
+                Role role = Role.builder()
                         .roleName(PredefinedRole.USER_ROLE)
-                        .description("User role")
-                        .build());
+                        .description(PredefinedRole.USER_ROLE)
+                                .build();
+                roleRepository.save(role);
             }
+            Optional<Role> userRole1 = roleRepository.findByRoleName(PredefinedRole.USER_ROLE);
 
             Optional<Role> adminRole = roleRepository.findByRoleName(PredefinedRole.ADMIN_ROLE);
             if (adminRole.isEmpty()) {

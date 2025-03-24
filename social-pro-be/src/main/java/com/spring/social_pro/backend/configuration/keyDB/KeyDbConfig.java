@@ -8,6 +8,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
 @Configuration
 public class KeyDbConfig {
@@ -26,9 +28,21 @@ public class KeyDbConfig {
 
     @Bean
     @Primary
-    public RedisTemplate<Object, Object> keyDbTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> keyDbTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
+
+        // Tạo Jackson2JsonRedisSerializer để serialize/deserialize đối tượng Java thành JSON
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
+
+        // Thiết lập Jackson serializer cho key và value
+        template.setKeySerializer(RedisSerializer.string());  // Key được lưu dưới dạng String
+        template.setValueSerializer(serializer);              // Value sử dụng Jackson serializer
+
+        // Thiết lập serializer cho các đối tượng trong Hash
+        template.setHashKeySerializer(RedisSerializer.string());
+        template.setHashValueSerializer(serializer);
+
         return template;
     }
 }

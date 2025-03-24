@@ -4,3 +4,11 @@ export interface ApiResponse<T> {
   data: T;
   timestamp: number;
 }
+
+export interface ApiResponsePaging<T> {
+  currentPage: number
+  totalPages: number
+  pageSize: number
+  totalElements: number
+  data: T[]
+}

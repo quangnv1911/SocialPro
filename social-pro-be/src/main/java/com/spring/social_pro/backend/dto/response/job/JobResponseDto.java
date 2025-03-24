@@ -1,7 +1,11 @@
 package com.spring.social_pro.backend.dto.response.job;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -9,8 +13,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JobResponseDto {
-    String jobName;
-    String groupName;
-    String cronExpression;
-    String details;
+    String name;
+    String cronUrl;
+    String intervalSeconds;
+    String method;
+    String duration;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime lastSchedule;
 }
