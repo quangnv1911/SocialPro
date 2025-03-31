@@ -5,6 +5,7 @@ import winston from 'winston';
 import { Client } from '@elastic/elasticsearch';
 import dotenv from 'dotenv';
 dotenv.config();
+
 // Tạo instance của Elasticsearch client
 const esClient = new Client({ node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200' });
 
@@ -27,6 +28,7 @@ const app = express();
 app.use(express.json());
 
 const QUEUE_NAME = process.env.QUEUE_NAME || 'email_queue';
+const EMAIL_INDEX = process.env.ELASTICSEARCH_INDEX || 'emails';
 let channel;
 
 // Thống kê
@@ -57,6 +59,32 @@ async function connectRabbitMQ() {
   }
 }
 
+// Khởi tạo Elasticsearch index
+async function setupElasticsearch() {
+  try {
+    const indexExists = await esClient.indices.exists({ index: EMAIL_INDEX });
+    if (!indexExists) {
+      await esClient.indices.create({
+        index: EMAIL_INDEX,
+        body: {
+          mappings: {
+            properties: {
+              to: { type: 'keyword' },
+              subject: { type: 'text' },
+              status: { type: 'keyword' },
+              errorMessage: { type: 'text' },
+              timestamp: { type: 'date' }
+            }
+          }
+        }
+      });
+      console.log(`Created Elasticsearch index: ${EMAIL_INDEX}`);
+    }
+  } catch (error) {
+    console.error('Failed to setup Elasticsearch index', error);
+  }
+}
+
 // Hàm gửi email
 async function sendEmail({ to, subject, text }) {
   const transporter = nodemailer.createTransport({
@@ -76,16 +104,28 @@ async function sendEmail({ to, subject, text }) {
     });
     stats.success++;
     console.log(`Email sent to ${to}`);
+    
+    // Lưu thông tin email thành công vào Elasticsearch
+    await esClient.index({
+      index: EMAIL_INDEX,
+      document: {
+        to,
+        subject,
+        status: 'success',
+        timestamp: new Date().toISOString(),
+      },
+    });
   } catch (error) {
     stats.errors++;
     console.error(`Failed to send email to ${to}`, error.message);
 
     // Log lỗi vào Elasticsearch
     await esClient.index({
-      index: process.env.ELASTICSEARCH_INDEX || 'email-errors',
+      index: EMAIL_INDEX,
       document: {
         to,
         subject,
+        status: 'failed',
         errorMessage: error.message,
         timestamp: new Date().toISOString(),
       },
@@ -130,10 +170,59 @@ app.get('/stats', (req, res) => {
   res.json(stats);
 });
 
+// Endpoint để xem lịch sử email
+app.get('/email-history', async (req, res) => {
+  try {
+    const { status, page = 1, size = 10, email } = req.query;
+    const from = (page - 1) * size;
+    
+    const query = {
+      bool: {
+        must: []
+      }
+    };
+    
+    if (status) {
+      query.bool.must.push({ term: { status } });
+    }
+    
+    if (email) {
+      query.bool.must.push({ term: { to: email } });
+    }
+    
+    const response = await esClient.search({
+      index: EMAIL_INDEX,
+      body: {
+        query: query.bool.must.length > 0 ? query : { match_all: {} },
+        sort: [{ timestamp: { order: 'desc' } }],
+        from,
+        size
+      }
+    });
+    
+    const total = response.hits.total.value;
+    const emails = response.hits.hits.map(hit => ({
+      id: hit._id,
+      ...hit._source
+    }));
+    
+    res.json({
+      total,
+      page: parseInt(page),
+      size: parseInt(size),
+      emails
+    });
+  } catch (error) {
+    console.error('Failed to fetch email history', error);
+    res.status(500).json({ message: 'Failed to fetch email history' });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   await connectRabbitMQ();
+  await setupElasticsearch();
   processQueue();
 });

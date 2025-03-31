@@ -20,6 +20,6 @@ public interface UserRepository extends JpaRepository<User, UUID> , JpaSpecifica
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     Optional<User> findByEmail(String email);
     Boolean existsUserByEmailIgnoreCase(String email);
-    Boolean existsUserByUserName(String username);
+    Boolean existsUserByUserNameIgnoreCase(String username);
 
 }

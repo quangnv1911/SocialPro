@@ -10,6 +10,7 @@ export type UseQueryOptions<TQueryFnData, TError = StandardizedApiError> = Omit<
   meta?: Partial<ExtendedQueryMeta>;
   // eslint-disable-next-line no-unused-vars
   queryFn: (client: AxiosInstance) => QueryFunction<TQueryFnData, QueryKey>;
+  keepPreviousData?: boolean
 };
 
 export type GenericQueryOptions<TQueryFnData, TError = StandardizedApiError> = Omit<

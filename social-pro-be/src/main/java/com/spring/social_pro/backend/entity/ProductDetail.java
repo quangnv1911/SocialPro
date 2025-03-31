@@ -1,6 +1,7 @@
 package com.spring.social_pro.backend.entity;
 
 import com.spring.social_pro.backend.base.BaseEntity;
+import com.spring.social_pro.backend.enums.Duration;
 import com.spring.social_pro.backend.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,10 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDetail extends BaseEntity<UUID> {
     String data;
+
+    @Column(name = "duration")
+    @Enumerated(EnumType.STRING)
+    Duration duration;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

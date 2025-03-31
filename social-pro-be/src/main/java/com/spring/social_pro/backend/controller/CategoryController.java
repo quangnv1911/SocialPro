@@ -6,6 +6,7 @@ import com.spring.social_pro.backend.dto.request.product.ProductCreateDto;
 import com.spring.social_pro.backend.dto.request.product.ProductFilerRequest;
 import com.spring.social_pro.backend.dto.response.ApiResponse;
 import com.spring.social_pro.backend.dto.response.PageResponse;
+import com.spring.social_pro.backend.dto.response.category.CategoryProductResponse;
 import com.spring.social_pro.backend.dto.response.category.CategoryResponse;
 import com.spring.social_pro.backend.enums.BigCategory;
 import com.spring.social_pro.backend.service.ICategoryService;
@@ -38,14 +39,24 @@ public class CategoryController {
                 .build();
     }
 
-    @GetMapping("/")
-    public ApiResponse<?> getAllCategories(@RequestParam CategoryFilterRequest request) {
-        var categories = categoryService.getCategories(request);
-        return ApiResponse.<PageResponse<CategoryResponse>>builder()
+    @GetMapping("/list/{bigCategory}")
+    public ApiResponse<?> getAllCategories(@PathVariable BigCategory bigCategory) {
+        var categories = categoryService.getCategories(bigCategory);
+        return ApiResponse.<List<CategoryResponse>>builder()
                 .status(HttpStatus.OK.value())
                 .data(categories)
                 .build();
     }
+
+    @GetMapping("/products")
+    public ApiResponse<?> getAllCategoriesWithProducts() {
+        var categories = categoryService.getAllCategoriesWithProducts();
+        return ApiResponse.<List<CategoryProductResponse>>builder()
+                .status(HttpStatus.OK.value())
+                .data(categories)
+                .build();
+    }
+
 
     @GetMapping("/{id}")
     public ApiResponse<?> getCategory(@PathVariable UUID id) {

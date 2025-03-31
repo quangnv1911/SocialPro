@@ -1,8 +1,11 @@
 package com.spring.social_pro.backend.controller;
 
+import com.nimbusds.jose.JOSEException;
 import com.spring.social_pro.backend.dto.request.ApiRequest;
+import com.spring.social_pro.backend.dto.request.authen.LogoutRequest;
 import com.spring.social_pro.backend.dto.request.authen.RegisterRequest;
 import com.spring.social_pro.backend.dto.request.authen.AuthenticateRequest;
+import com.spring.social_pro.backend.dto.request.authen.VerifyAccountRequest;
 import com.spring.social_pro.backend.dto.response.ApiResponse;
 import com.spring.social_pro.backend.dto.response.authen.AuthenticateResponse;
 import com.spring.social_pro.backend.exception.AppException;
@@ -19,6 +22,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
 
 
 @Slf4j
@@ -62,8 +67,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ApiResponse<AuthenticateResponse> handleLogout() {
-
+    public ApiResponse<AuthenticateResponse> handleLogout(@RequestBody ApiRequest<LogoutRequest> request) throws ParseException, JOSEException {
+        authenticationService.handleLogout(request.getData());
 
         return ApiResponse.<AuthenticateResponse>builder()
                 .status(HttpStatus.OK.value())
@@ -72,14 +77,12 @@ public class AuthController {
     }
 
     @PostMapping("/verify-account")
-    public ApiResponse<?> verifyAccount(@RequestBody @Valid ApiRequest<RegisterRequest> verifyAccountRequest,
-                                        @RequestParam String otp,
-                                        HttpServletRequest request) {
+    public ApiResponse<?> verifyAccount(@RequestBody @Valid ApiRequest<VerifyAccountRequest> verifyAccountRequest) {
 
-        var result = authenticationService.handleRegister(verifyAccountRequest.getData(), request);
+         authenticationService.handleVerifyAccount(verifyAccountRequest.getData());
         return ApiResponse.<String>builder()
                 .status(HttpStatus.CREATED.value())
-                .data(result)
+                .data("Account verified successfully")
                 .build();
     }
 

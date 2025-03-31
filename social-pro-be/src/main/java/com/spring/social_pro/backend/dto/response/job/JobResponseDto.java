@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,9 +14,11 @@ import java.time.LocalDateTime;
 public class JobResponseDto {
     String name;
     String cronUrl;
-    String intervalSeconds;
+    Integer intervalSeconds;
     String method;
-    String duration;
+    Integer duration;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime lastSchedule;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    LocalDateTime createdTime;
 }

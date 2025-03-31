@@ -1,19 +1,14 @@
 package com.spring.social_pro.backend.entity;
 
 import com.spring.social_pro.backend.base.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.spring.social_pro.backend.enums.Duration;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.w3c.dom.Text;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "product")
@@ -33,13 +28,23 @@ public class Product extends BaseEntity<UUID> {
 
     @Column(name = "image")
     String image;
+
     @Column(name = "description", columnDefinition = "Text")
     String description;
 
-    @Column(name = "quantity")
-    @Builder.Default
-    Integer quantity = 0;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    List<ProductDuration> durations;
 
-    @OneToMany
+    @Column(name = "total_sold")
+    @Builder.Default
+    Integer totalSold = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    Category category;
+
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     Set<ProductDetail> details;
+
+
 }

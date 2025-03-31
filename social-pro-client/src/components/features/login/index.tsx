@@ -22,7 +22,6 @@ import { toast } from 'react-toastify';
 import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
 import { LoginMutationResponse } from '@/api/actions/auth/auth.types';
 
-
 const LoginModal: FC = (): ReactElement => {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -51,7 +50,7 @@ const LoginModal: FC = (): ReactElement => {
       setShowLogin(false);
     },
     onError: (error: StandardizedApiError) => {
-      toast.error(error.message);
+      toast.error((error.data as { message?: string })?.message ?? 'Đăng nhập thất bại');
     },
   });
 
@@ -94,12 +93,7 @@ const LoginModal: FC = (): ReactElement => {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Mật khẩu</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password')}
-                disabled={isAuthenticating}
-              />
+              <Input id="password" type="password" {...register('password')} disabled={isAuthenticating} />
               {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
             </div>
             <div className="flex flex-col gap-4">
