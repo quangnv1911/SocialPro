@@ -1,4 +1,4 @@
-package com.spring.social_pro.backend.service.Impl;
+package com.spring.social_pro.backend.service.impl;
 
 import com.spring.social_pro.backend.dto.data.PaymentCacheData;
 import com.spring.social_pro.backend.dto.request.payment.PaymentCallbackRequest;

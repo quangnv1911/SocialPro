@@ -1,10 +1,12 @@
-package com.spring.social_pro.backend.service.Impl;
+package com.spring.social_pro.backend.service.impl;
 
 import com.spring.social_pro.backend.dto.request.category.CategoryCreateDto;
 import com.spring.social_pro.backend.dto.request.category.CategoryFilterRequest;
 import com.spring.social_pro.backend.dto.response.PageResponse;
+import com.spring.social_pro.backend.dto.response.category.CategoryProductResponse;
 import com.spring.social_pro.backend.dto.response.category.CategoryResponse;
 import com.spring.social_pro.backend.entity.Category;
+import com.spring.social_pro.backend.entity.Product;
 import com.spring.social_pro.backend.enums.BigCategory;
 import com.spring.social_pro.backend.exception.AppException;
 import com.spring.social_pro.backend.exception.ErrorCode;
@@ -35,12 +37,9 @@ public class CategoryService implements ICategoryService {
     CategoryMapper categoryMapper;
 
     @Override
-    public PageResponse<CategoryResponse> getCategories(CategoryFilterRequest request) {
-        Pageable pageRequest = PaginationUtil.createPageRequest(
-                request.getPage(), request.getPageSize(), request.getSortBy(), request.getSortOrder()
-        );
-        var categories =  categoryRepository.findByNameContaining(request.getName(),pageRequest);
-        return PageResponse.fromPage(categories, categoryMapper::toCategoryResponse);
+    public List<CategoryResponse> getCategories(BigCategory request) {
+        var categories = categoryRepository.findAllByBigCategoryOrderByCreatedAtDesc(request);
+        return categoryMapper.toCategoryResponseList(categories);
     }
 
     @Override
@@ -58,7 +57,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void deleteCategory(UUID id) {
-        var category = checkCategoryExist(id);
+        checkCategoryExist(id);
         categoryRepository.deleteById(id);
     }
 
@@ -74,6 +73,16 @@ public class CategoryService implements ICategoryService {
     public List<BigCategory> getBigCategories() {
         return Arrays.stream(BigCategory.values())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CategoryProductResponse> getAllCategoriesWithProducts() {
+        var categories = categoryRepository.findAllWithLimitedProducts();
+        if (categories != null && !categories.isEmpty()) {
+            return categoryMapper.toResponseList(categories);
+        }
+
+        return List.of();
     }
 
     private Category checkCategoryExist(UUID id) {

@@ -13,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GeneratePaymentResponse {
+    Long id;
     String content;
     BigDecimal amount;
     String gate;

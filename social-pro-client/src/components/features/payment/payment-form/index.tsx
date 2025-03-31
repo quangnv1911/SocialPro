@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { FC, ReactElement, useEffect, useState } from 'react';
 import { BanknoteIcon as Bank, QrCode, Info } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -9,16 +9,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'react-toastify';
-import { useMutation } from '@/hooks';
+import { useMutation, useQuery } from '@/hooks';
 import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
 import { GeneratePaymentMutationResponse } from '@/api/actions/payment/payment.types';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
-export default function PaymentForm() {
+// Add these imports at the top
+import { usePaymentNotification } from '@/hooks/usePaymentNotification';
+import userStore from '@/stores/userStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { ENV } from '@/config/env';
+import authStore from '@/stores/authState';
+import { userQueries } from '@/api/actions/user/user.queries';
+
+// Inside the PaymentForm component, add:
+export const PaymentForm: FC = (): ReactElement => {
+  const { accessToken } = authStore();
   const [amount, setAmount] = useState('10000');
   const [selectedBank, setSelectedBank] = useState('MB');
   const [transferDetails, setTransferDetails] = useState<null | GeneratePaymentMutationResponse>(null);
+  const [listening, setListening] = useState(false);
+
+  const { refetch } = useQuery(userQueries.me());
 
   const { mutateAsync: createPayment, isPending } = useMutation('generatePayment', {
     onSuccess: (res: GeneratePaymentMutationResponse) => {
@@ -42,6 +55,21 @@ export default function PaymentForm() {
     await navigator.clipboard.writeText(text);
     toast.success(`Đã sao chép ${label} vào clipboard`);
   };
+  // Add this after setting transferDetails state
+  useEffect(() => {
+    if (!accessToken) return;
+    if (!listening) {
+      const events = new EventSource(`${ENV.API_ENDPOINT_SSE}/${accessToken}`);
+
+      events.onmessage = (event) => {
+        console.log(event.data);
+        refetch();
+        toast.success('Nạp tiền thành công');
+      };
+
+      setListening(true);
+    }
+  }, [listening, accessToken]);
   return (
     <Card className="w-full">
       <CardHeader>
@@ -62,15 +90,16 @@ export default function PaymentForm() {
           <TabsContent value="bank" className="mt-6">
             {!transferDetails ? (
               <div className="flex flex-col items-center justify-center py-10 space-y-6">
-                <div className="flex items-center gap-2 text-blue-600 font-medium">
+                <div className="flex items-center gap-2 text-orange-600 font-medium">
                   <Bank className="h-5 w-5" />
                   <span className="uppercase">NẠP TIỀN TỰ ĐỘNG</span>
                 </div>
 
-
                 <div className="space-y-4 w-full max-w-md">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium" htmlFor={'Bank name'}>Tên Ngân Hàng*</Label>
+                    <Label className="text-sm font-medium" htmlFor={'Bank name'}>
+                      Tên Ngân Hàng*
+                    </Label>
                     <Select value={selectedBank} onValueChange={setSelectedBank}>
                       <SelectTrigger>
                         <SelectValue placeholder="Chọn ngân hàng" />
@@ -100,7 +129,7 @@ export default function PaymentForm() {
                   </div>
 
                   <Button
-                    className="w-full bg-blue-500 hover:bg-blue-600"
+                    className="w-full bg-orange-600 hover:bg-yellow-600"
                     onClick={() => handleCreatePayment()}
                     disabled={isPending}
                   >
@@ -230,8 +259,7 @@ export default function PaymentForm() {
                     <div className="space-y-2 text-sm">
                       <p className="text-red-500">- Chú ý:</p>
                       <p className="text-red-500">
-                        Tài khoản bank không cố định. Vui lòng kiểm tra lại tên và số tài khoản đang hiển thị trước
-                        khi
+                        Tài khoản bank không cố định. Vui lòng kiểm tra lại tên và số tài khoản đang hiển thị trước khi
                         thực hiện giao dịch. Xin cảm ơn.
                       </p>
                       <p className="text-gray-600">
@@ -239,8 +267,7 @@ export default function PaymentForm() {
                         thành công.
                       </p>
                       <p className="text-gray-600">
-                        - Quý khách thực hiện chuyển tiền qua dịch vụ quốc tế tới ngân hàng Việt Nam vui lòng chờ từ
-                        3-5
+                        - Quý khách thực hiện chuyển tiền qua dịch vụ quốc tế tới ngân hàng Việt Nam vui lòng chờ từ 3-5
                         ngày (tùy vào dịch vụ / không tính Thứ 7 và Chủ Nhật)
                       </p>
                     </div>
@@ -305,4 +332,3 @@ export default function PaymentForm() {
     </Card>
   );
 };
-

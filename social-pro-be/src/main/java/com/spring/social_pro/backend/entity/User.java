@@ -42,7 +42,7 @@ public class User extends BaseEntity<UUID> {
 
     @Column(name = "money")
     @Builder.Default
-    BigDecimal money = BigDecimal.valueOf(0);
+    BigDecimal money = BigDecimal.ZERO;
 
     @Column(name = "phone")
     String phone;

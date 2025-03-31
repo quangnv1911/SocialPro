@@ -12,6 +12,6 @@ public class PaginationUtil {
 
     public static Pageable createPageRequest(int page, int size, String sortBy, String sortOrder) {
         Sort.Direction direction = PaginationUtil.sortDirection(sortOrder);
-        return PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
     }
 }

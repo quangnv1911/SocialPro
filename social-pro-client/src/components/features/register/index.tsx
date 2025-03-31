@@ -30,16 +30,20 @@ export default function RegisterModal({ show, onClose, onBackToLogin }: Readonly
     resolver: zodResolver(registerSchema),
   });
 
-
-  const { mutateAsync: submitRegister} = useMutation('registerMutation', {
+  const { mutateAsync: submitRegister } = useMutation('registerMutation', {
     onSuccess: () => {
+      toast.success('Đăng ký thành công');
       onBackToLogin();
     },
     onError: () => {
       toast.error('Đăng ký thất bại');
     },
   });
-  const { data: captchaData, isLoading: isLoadingCaptcha, refetch } = useQuery({
+  const {
+    data: captchaData,
+    isLoading: isLoadingCaptcha,
+    refetch,
+  } = useQuery({
     ...captchaQueries.get(),
   });
 
@@ -120,10 +124,12 @@ export default function RegisterModal({ show, onClose, onBackToLogin }: Readonly
             </div>
           </div>
 
-
           <div className="flex flex-col gap-4">
-            <Button type="submit" className="w-full bg-gradient-to-r from-blue-900 to-blue-700"
-                    disabled={isSubmitting || isLoadingCaptcha}>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-900 to-blue-700"
+              disabled={isSubmitting || isLoadingCaptcha}
+            >
               {isLoadingCaptcha ? 'Đang đăng ký...' : 'Đăng ký'}
             </Button>
             <div className="text-center text-sm">

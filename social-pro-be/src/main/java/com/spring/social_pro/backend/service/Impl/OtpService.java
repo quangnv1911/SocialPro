@@ -1,4 +1,4 @@
-package com.spring.social_pro.backend.service.Impl;
+package com.spring.social_pro.backend.service.impl;
 
 import com.spring.social_pro.backend.configuration.keyDB.KeyDbConfig;
 import com.spring.social_pro.backend.service.IOtpService;
@@ -43,7 +43,7 @@ public class OtpService implements IOtpService {
             otp.append(random.nextInt(10));  // Sinh ra một chữ số ngẫu nhiên từ 0 đến 9
         }
         String key = "OTP:" + email;
-        keyDbTemplate.opsForValue().set(key, otp.toString(), OTP_EXPIRE_TIME, TimeUnit.MINUTES);
+        keyDbTemplate.opsForValue().set(key, otp.toString(), OTP_EXPIRE_TIME, TimeUnit.HOURS);
         return otp.toString();
     }
 

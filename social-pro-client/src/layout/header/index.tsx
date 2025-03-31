@@ -1,85 +1,226 @@
 'use client';
-import { Toggle } from '@/components/ui/toggle';
-import { Bell, Moon, Sun } from 'lucide-react';
+
+import Link from 'next/link';
+import { useState } from 'react';
+import userStore from '@/stores/userStore';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import UserMenu from '@/components/user-menu';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-import profilePic from '@/assets/images/logo.png';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import UserProfileHeader from '@/components/common/header/profile';
-import templateStore from '@/stores/templateStore';
-import { Switch } from '@/components/ui/switch';
-import { useTheme } from 'next-themes';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { CRONJOB_PATH, PAYMENT_PATH } from '@/utils/constants';
+import { useCartStore } from '@/stores/cartStore';
+import NavLink from '@/components/common/header/nav-link';
+import { Search, ShoppingCart, Menu, X, Wallet, PlusCircle } from 'lucide-react';
+import { toast } from 'react-toastify';
+import authStore from '@/stores/authState';
+import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
+import { useMutation } from '@/hooks';
 
-const HeaderComponent = () => {
-  const { setTheme } = useTheme();
+const Header = () => {
+  const router = useRouter();
+  const { user } = userStore();
+  const { accessToken } = authStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const totalItems = useCartStore((state) => state.totalItems());
 
+  const { mutateAsync: logout } = useMutation('logoutMutation', {
+    onSuccess: () => {
+      authStore.getState().clearTokens();
+      userStore.getState().clearData();
+      toast.success('Đăng xuất thành công');
+      router.push('/');
+    },
+    onError: (error: StandardizedApiError) => {
+      toast.error((error.data as { message?: string })?.message ?? 'Đăng xuất thất bại');
+    },
+  });
+
+  const handleLogout = () => {
+    setMobileMenuOpen(false);
+    if (!accessToken) return;
+    logout({ accessToken });
+  };
   return (
-    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-[#0A1E4B] to-blue-600 shadow-lg">
-      <div className="container flex h-16 items-center justify-between">
-        {/* Logo Section - Left side */}
-        <div className="flex items-center gap-4">
-          <Image
-            src={profilePic}
-            alt="Logo"
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
-          <h1 className="text-white font-semibold text-xl">MyApp</h1>
+    <header className="fixed top-0 left-0 right-0 border-b bg-white z-50 shadow-sm">
+      <div className="container mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="text-xl md:text-2xl font-bold">
+            Social Pro
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <NavLink href="/">Trang chủ</NavLink>
+            <NavLink href="/products">Tài khoản</NavLink>
+            <NavLink href="/guide">Tài nguyên MMO</NavLink>
+            <NavLink href="/contact">Dịch vụ tăng tương tác</NavLink>
+            <NavLink href={CRONJOB_PATH}>Cron job</NavLink>
+          </nav>
         </div>
 
-        {/* Right Section - Right side */}
-        <div className="flex items-center gap-6">
+        {/* Mobile menu button */}
+        <button className="md:hidden p-2 text-gray-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
 
-          {/* Dark Mode Toggle */}
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Sun
-                    className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon
-                    className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme('light')}>
-                  Light
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')}>
-                  Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('system')}>
-                  System
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+        {/* Desktop right section */}
+        <div className="hidden md:flex items-center gap-5">
+          {/* User balance display */}
+          {user && (
+            <div className="bg-gray-100 rounded-full px-5 py-2 flex items-center">
+              <span className="text-sm font-medium text-gray-800">Số dư: {user?.money?.toLocaleString() || 0}đ</span>
+            </div>
+          )}
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              type="search"
+              placeholder="Tìm kiếm..."
+              className="w-[200px] pl-8 rounded-full bg-gray-50 border-gray-200 focus-visible:ring-yellow-500 focus-visible:border-yellow-500"
+            />
           </div>
 
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5 text-white" />
-            <span
-              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold">
-          3
-        </span>
+          {/* Cart button */}
+          <Button
+            variant="outline"
+            className="border-yellow-500 text-yellow-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-full relative"
+            onClick={() => router.push('/cart')}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Đơn hàng
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
           </Button>
 
-          {/* User Profile */}
-          <UserProfileHeader />
+          {/* User authentication section */}
+          {user ? (
+            <UserMenu handleLogout={handleLogout} />
+          ) : (
+            <Link href="/login">
+              <Button variant="secondary" className="bg-white text-yellow-500 hover:bg-gray-100">
+                Đăng nhập
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white absolute w-full border-b shadow-lg z-50">
+          <div className="container mx-auto px-4 py-4">
+            <nav className="flex flex-col space-y-4">
+              <NavLink href="/" onClick={() => setMobileMenuOpen(false)}>
+                Trang chủ
+              </NavLink>
+              <NavLink href="/products" onClick={() => setMobileMenuOpen(false)}>
+                Tài khoản
+              </NavLink>
+              <NavLink href="/mmo-resource" onClick={() => setMobileMenuOpen(false)}>
+                Tài nguyên MMO
+              </NavLink>
+              <NavLink href="/service" onClick={() => setMobileMenuOpen(false)}>
+                Dịch vụ tăng tương tác
+              </NavLink>
+              <NavLink href={CRONJOB_PATH} onClick={() => setMobileMenuOpen(false)}>
+                Cron job
+              </NavLink>
+            </nav>
+
+            <div className="mt-4 pt-4 border-t flex flex-col space-y-4">
+              {/* Mobile search */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+                <Input
+                  type="search"
+                  placeholder="Tìm kiếm..."
+                  className="w-full pl-8 rounded-full bg-gray-50 border-gray-200 focus-visible:ring-yellow-500 focus-visible:border-yellow-500"
+                />
+              </div>
+
+              {/* Mobile cart button */}
+              <Button
+                variant="outline"
+                className="w-full border-yellow-500 text-yellow-500 hover:bg-yellow-50 hover:text-yellow-600 rounded-full relative"
+                onClick={() => {
+                  router.push('/cart');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Đơn hàng
+                {totalItems > 0 && (
+                  <span className="absolute top-1/2 -translate-y-1/2 right-4 bg-yellow-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
+
+              {/* Mobile user balance with deposit button */}
+              {user && (
+                <div className="bg-gray-100 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center text-sm text-gray-700">
+                      <Wallet className="h-3.5 w-3.5 mr-1.5" />
+                      <span className="font-medium">Số dư tài khoản:</span>
+                    </div>
+                    <span className="text-sm font-medium">{user?.money?.toLocaleString() ?? 0}đ</span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white border-0"
+                    onClick={() => {
+                      router.push(PAYMENT_PATH);
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <PlusCircle className="h-3.5 w-3.5 mr-1.5" /> Nạp tiền ngay
+                  </Button>
+                </div>
+              )}
+
+              {/* Mobile auth section */}
+              {user ? (
+                <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-200">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.userName} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-yellow-500 text-white font-medium">
+                          {user.userName?.charAt(0) ?? 'U'}
+                        </div>
+                      )}
+                    </div>
+                    <span className="font-medium">{user.userName}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => handleLogout()}
+                  >
+                    Đăng xuất
+                  </Button>
+                </div>
+              ) : (
+                <Link href="/login" className="w-full" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="secondary" className="w-full bg-white text-yellow-500 hover:bg-gray-100">
+                    Đăng nhập
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
-
-
   );
 };
 
-export default HeaderComponent;
+export default Header;

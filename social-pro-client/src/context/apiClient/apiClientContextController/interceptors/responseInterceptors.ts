@@ -9,13 +9,13 @@ import authStore from '@/stores/authState';
 export const responseSuccessInterceptor = (response: AxiosResponse) => response.data;
 
 export const useResponseFailureInterceptor = async (error: AxiosError<unknown>) => {
-  // const { setAuthData, clearTokens, accessToken, refreshToken } = authStore.getState();
+  const { setAuthData, clearTokens, accessToken, refreshToken } = authStore.getState();
 
   const standarizedError = getStandardizedApiError(error);
 
   const originalRequest = error.config as ExtendedAxiosRequestConfig;
-  if (standarizedError.statusCode === 401 && originalRequest?._retry) {
-    // clearTokens();
+  if (standarizedError.statusCode === 401 && standarizedError.message === 'EXPIRED_TOKEN' && originalRequest?._retry) {
+    clearTokens();
 
     window.location.replace('/login');
 

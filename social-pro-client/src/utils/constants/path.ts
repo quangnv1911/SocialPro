@@ -6,4 +6,4 @@ export const CRONJOB_PATH = '/cron-job';
 export const SOCIAL_BUFF_PATH = '/social-buff';
 export const PAYMENT_PATH = '/payment';
 export const MMO_RESOURCE_PATH = '/mmo-resource';
-export const PRODUCT_PATH = '/product';
+export const PRODUCT_PATH = '/products';

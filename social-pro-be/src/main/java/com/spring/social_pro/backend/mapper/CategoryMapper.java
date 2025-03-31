@@ -1,6 +1,7 @@
 package com.spring.social_pro.backend.mapper;
 
 import com.spring.social_pro.backend.dto.request.category.CategoryCreateDto;
+import com.spring.social_pro.backend.dto.response.category.CategoryProductResponse;
 import com.spring.social_pro.backend.dto.response.category.CategoryResponse;
 import com.spring.social_pro.backend.entity.Category;
 import org.mapstruct.Builder;
@@ -22,4 +23,13 @@ public interface CategoryMapper {
     Category toCategoryFromCreateCategory(CategoryCreateDto categoryCreateDto);
     @Mapping(target = "id", ignore = true) // Không cập nhật ID
     void updateCategoryFromDto(CategoryCreateDto dto, @MappingTarget Category category);
+
+    @Mapping(target = "products", source = "products")
+    CategoryProductResponse toResponse(Category category);
+
+    default List<CategoryProductResponse> toResponseList(List<Category> categories) {
+        return categories.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
 }
