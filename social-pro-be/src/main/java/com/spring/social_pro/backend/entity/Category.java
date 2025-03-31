@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -23,6 +24,9 @@ public class Category  extends BaseEntity<UUID> {
     String description;
     @Column(name = "image")
     String image;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    Set<Product> products;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "big_category", nullable = false)

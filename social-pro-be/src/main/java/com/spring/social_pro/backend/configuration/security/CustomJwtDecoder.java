@@ -1,7 +1,7 @@
 package com.spring.social_pro.backend.configuration.security;
 
 import com.nimbusds.jose.JOSEException;
-import com.spring.social_pro.backend.service.Impl.AuthenticationService;
+import com.spring.social_pro.backend.service.impl.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;

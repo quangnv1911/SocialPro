@@ -1,5 +1,6 @@
 package com.spring.social_pro.backend.dto.request.job;
 
+import com.spring.social_pro.backend.enums.Duration;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,9 +10,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateJobDto {
-    String name;
     String cronUrl;
-    String intervalSeconds;
+    Integer intervalSeconds;
     String method;
-    String duration;
+    Duration duration;
 }

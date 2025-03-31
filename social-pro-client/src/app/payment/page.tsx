@@ -1,6 +1,6 @@
 import { FC, ReactElement } from 'react';
-import PaymentForm from '@/components/features/payment/payment-form';
 import PaymentHistory from '@/components/features/payment/payment-history';
+import { PaymentForm } from '@/components/features/payment/payment-form';
 
 const PaymentScreen: FC = (): ReactElement => {
   return (

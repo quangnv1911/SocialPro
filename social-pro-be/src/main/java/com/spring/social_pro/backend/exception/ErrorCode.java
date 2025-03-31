@@ -24,7 +24,11 @@ public enum ErrorCode {
     CATEGORY_NOT_EXIST(1015, "Category not existed", HttpStatus.BAD_REQUEST),
     PRODUCT_NOT_EXIST(1016, "Product not existed", HttpStatus.BAD_REQUEST),
     PRODUCT_DETAIL_NOT_EXIST(1017, "Product detail not existed", HttpStatus.BAD_REQUEST),
-    USER_ROLE_NOT_FOUND(1018, "User role not existed", HttpStatus.BAD_REQUEST),;
+    USER_ROLE_NOT_FOUND(1018, "User role not existed", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_BALANCE(1019, "Insufficient balance", HttpStatus.BAD_REQUEST),
+    ORDER_DETAIL_NOT_FOUND(1020, "Order detail not found", HttpStatus.BAD_REQUEST),
+    PRODUCT_NOT_FOUND(1021, "Product not found", HttpStatus.BAD_REQUEST),
+    PRODUCT_DETAIL_NOT_AVAILABLE(1022, "Product detail not available", HttpStatus.BAD_REQUEST),;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

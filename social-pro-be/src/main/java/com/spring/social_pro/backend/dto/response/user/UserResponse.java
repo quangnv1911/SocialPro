@@ -5,11 +5,13 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Setter
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
+    UUID id;
     String email;
     String userName;
     String roleName;

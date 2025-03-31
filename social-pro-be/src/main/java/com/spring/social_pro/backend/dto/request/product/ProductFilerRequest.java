@@ -6,6 +6,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -14,5 +16,6 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductFilerRequest extends BaseFilterRequest {
+    UUID categoryId;
     String name;
 }

@@ -1,10 +1,13 @@
 package com.spring.social_pro.backend.dto.response.product;
 
+import com.spring.social_pro.backend.dto.response.productDuration.ProductDurationResponse;
+import com.spring.social_pro.backend.enums.Duration;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -20,4 +23,6 @@ public class ProductResponse {
     Integer quantity;
     String image;
     LocalDateTime createdAt;
+    List<ProductDurationResponse> durations;
+
 }

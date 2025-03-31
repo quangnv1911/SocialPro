@@ -31,15 +31,20 @@ const nextConfig: NextConfig = {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
   compiler: {
-    removeConsole:
-      process.env.NODE_ENV === 'production'
-        ? { exclude: ['error', 'debug'] }
-        : false,
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'debug'] } : false,
   },
   devIndicators: {
     appIsrStatus: false,
   },
   experimental: {
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
     cssChunking: true,
     optimizePackageImports: [],
     reactCompiler: process.env.NODE_ENV === 'production',
@@ -60,13 +65,14 @@ const nextConfig: NextConfig = {
       },
     ],
     remotePatterns:
-    // process.env.CORS_RESOURCE?.split(',').map((remote) => ({
-    //   hostname: remote,
-    // })) ?? [],
+      // process.env.CORS_RESOURCE?.split(',').map((remote) => ({
+      //   hostname: remote,
+      // })) ?? [],
       [
-        { hostname: 'example.com' },
-        { hostname: 'cdn.example.org' },
-        { hostname: 'img.vietqr.io' },
+        {
+          protocol: 'https',
+          hostname: '**', // Chấp nhận tất cả hostname
+        },
       ],
   },
   logging: {

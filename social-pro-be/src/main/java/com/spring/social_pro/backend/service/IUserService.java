@@ -9,4 +9,5 @@ public interface IUserService {
     PageResponse<UserResponse> getUsers(UserFilterRequest request);
     User getCurrentUser();
     UserResponse getMe();
+    void handlePurchaseProcessing(User user, String price);
 }

@@ -5,15 +5,13 @@ import com.spring.social_pro.backend.service.IUserService;
 import com.spring.social_pro.backend.util.JwtUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.server.PathParam;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.UUID;
@@ -28,8 +26,8 @@ public class NotificationController {
     INotifyService notifyService;
     JwtUtils jwtUtils;
 
-    @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter handlePaymentNotification(@RequestParam String accessToken) {
+    @GetMapping(value = "/sse/{accessToken}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter handlePaymentNotification(@PathVariable String accessToken) {
         // Lấy thông tin người dùng từ token hoặc session
         var claims = jwtUtils.getUserInfoFromAccessToken(accessToken);
         UUID userId = UUID.fromString(claims.getClaim("id").toString());

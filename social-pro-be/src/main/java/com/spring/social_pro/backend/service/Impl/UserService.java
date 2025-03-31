@@ -1,4 +1,4 @@
-package com.spring.social_pro.backend.service.Impl;
+package com.spring.social_pro.backend.service.impl;
 
 import com.spring.social_pro.backend.dto.request.user.UserFilterRequest;
 import com.spring.social_pro.backend.dto.response.PageResponse;
@@ -69,5 +69,10 @@ public class UserService implements IUserService {
     public UserResponse getMe() {
         var user = getCurrentUser();
         return userMapper.toUserResponse(user);
+    }
+
+    @Override
+    public void handlePurchaseProcessing(User user, String price) {
+
     }
 }

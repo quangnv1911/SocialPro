@@ -26,7 +26,7 @@ public class PageResponse<T> {
 
     public static <T, U> PageResponse<U> fromPage(Page<T> page, Function<T, U> mapperFunction) {
         return PageResponse.<U>builder()
-                .currentPage(page.getNumber()) // Vì Spring Page bắt đầu từ 0
+                .currentPage(page.getNumber()+1) // Vì Spring Page bắt đầu từ 0
                 .totalPages(page.getTotalPages())
                 .pageSize(page.getSize())
                 .totalElements(page.getTotalElements())
