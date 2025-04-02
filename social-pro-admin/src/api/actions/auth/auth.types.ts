@@ -1,19 +1,22 @@
 export type LoginMutationArguments = {
-  username: string;
+  userCredential: string;
   password: string;
 };
 
 export type LoginMutationResponse = {
+  isAuthenticated: boolean;
   accessToken: string;
-  tokenType: string;
-  expires: number;
   refreshToken: string;
+  role: string;
+  userName: string;
+  email: string;
+  image: string;
 };
 
 export type GetMeQueryResponse = {
   firstName: string;
   lastName: string;
-  username: string;
+  userName: string;
 };
 
 export type User = {
@@ -37,6 +40,18 @@ export type GetUsersListArgs = {
 export type RefreshTokenMutationResponse = {
   accessToken: string;
   refreshToken: string;
+};
+
+export type RegisterMutationArguments = {
+  userName: string;
+  password: string;
+  email: string;
+  captchaText: string;
+  captchaId?: number;
+};
+
+export type LogoutMutationRequest = {
+  accessToken: string;
 };
 
 // API_ACTION_TYPES

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -17,12 +18,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Category  extends BaseEntity<UUID> {
-    @Column(name = "category_name")
-    String categoryName;
-    @Column(name = "category_description")
-    String categoryDescription;
-    @Column(name = "category_image")
-    String categoryImage;
+    @Column(name = "name")
+    String name;
+    @Column(name = "description")
+    String description;
+    @Column(name = "image")
+    String image;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    Set<Product> products;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "big_category", nullable = false)

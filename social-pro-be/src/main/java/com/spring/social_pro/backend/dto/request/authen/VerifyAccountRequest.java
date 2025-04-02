@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VerifyAccountRequest {
-    String email;
-    @Size(min = 6, message = "INVALID_PASSWORD")
+    String account;
+    @Size(min = 6, message = "INVALID_OTP")
     String otp;
 }

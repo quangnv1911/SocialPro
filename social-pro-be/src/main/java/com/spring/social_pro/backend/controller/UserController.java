@@ -3,7 +3,7 @@ package com.spring.social_pro.backend.controller;
 import com.spring.social_pro.backend.dto.request.user.UserFilterRequest;
 import com.spring.social_pro.backend.dto.response.ApiResponse;
 import com.spring.social_pro.backend.dto.response.PageResponse;
-import com.spring.social_pro.backend.dto.response.UserResponse;
+import com.spring.social_pro.backend.dto.response.user.UserResponse;
 import com.spring.social_pro.backend.exception.AppException;
 import com.spring.social_pro.backend.exception.ErrorCode;
 import com.spring.social_pro.backend.service.IUserService;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     IUserService userService;
+
     @GetMapping("/")
     public ApiResponse<?> getUsers(@RequestParam UserFilterRequest request) {
 
@@ -37,5 +38,15 @@ public class UserController {
                 .build();
     }
 
-
+    @GetMapping("/me")
+    public ApiResponse<?> getMe() {
+        var result = userService.getMe();
+        if(result == null){
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        return ApiResponse.<UserResponse>builder()
+                .status(HttpStatus.OK.value())
+                .data(result)
+                .build();
+    }
 }

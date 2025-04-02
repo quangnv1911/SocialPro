@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import javax.annotation.Nullable;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -16,7 +18,8 @@ public class BaseFilterRequest {
     Integer page = 1;
     @Builder.Default
     Integer pageSize = 10;
-    String sortBy;
+    @Builder.Default
+    String sortBy = "id";
     @Builder.Default
     String sortOrder = "asc";
 }

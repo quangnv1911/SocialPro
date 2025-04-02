@@ -23,19 +23,28 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  metadata: {
+    title: 'Social Pro',
+    description: 'The best place for social media growth services',
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
   compiler: {
-    removeConsole:
-      process.env.NODE_ENV === 'production'
-        ? { exclude: ['error', 'debug'] }
-        : false,
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'debug'] } : false,
   },
   devIndicators: {
     appIsrStatus: false,
   },
   experimental: {
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
     cssChunking: true,
     optimizePackageImports: [],
     reactCompiler: process.env.NODE_ENV === 'production',
@@ -56,9 +65,15 @@ const nextConfig: NextConfig = {
       },
     ],
     remotePatterns:
-      process.env.CORS_RESOURCE?.split(',').map((remote) => ({
-        hostname: remote,
-      })) ?? [],
+      // process.env.CORS_RESOURCE?.split(',').map((remote) => ({
+      //   hostname: remote,
+      // })) ?? [],
+      [
+        {
+          protocol: 'https',
+          hostname: '**', // Chấp nhận tất cả hostname
+        },
+      ],
   },
   logging: {
     fetches: {

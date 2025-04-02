@@ -9,8 +9,10 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -39,7 +41,8 @@ public class User extends BaseEntity<UUID> {
     String avatar;
 
     @Column(name = "money")
-    Long money;
+    @Builder.Default
+    BigDecimal money = BigDecimal.ZERO;
 
     @Column(name = "phone")
     String phone;
@@ -67,10 +70,10 @@ public class User extends BaseEntity<UUID> {
     @Column(name = "api_key")
     String apiKey;
 
-    @Column(name = "image")
-    String image;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     Role role;
+
+    @OneToMany
+    Set<ProductDetail> productDetails;
 }
