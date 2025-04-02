@@ -219,7 +219,7 @@ app.get('/email-history', async (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.EMAIL_PROXY_PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   await connectRabbitMQ();
