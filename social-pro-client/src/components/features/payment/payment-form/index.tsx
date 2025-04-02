@@ -1,27 +1,22 @@
 'use client';
 
-import { FC, ReactElement, useEffect, useState } from 'react';
-import { BanknoteIcon as Bank, QrCode, Info } from 'lucide-react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
+import { ENV } from '@/config/env';
 import { toast } from 'react-toastify';
-import { useMutation, useQuery } from '@/hooks';
-import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
-import { GeneratePaymentMutationResponse } from '@/api/actions/payment/payment.types';
+import authStore from '@/stores/authState';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-
-// Add these imports at the top
-import { usePaymentNotification } from '@/hooks/usePaymentNotification';
-import userStore from '@/stores/userStore';
-import { useQueryClient } from '@tanstack/react-query';
-import { ENV } from '@/config/env';
-import authStore from '@/stores/authState';
+import { Button } from '@/components/ui/button';
+import { useMutation, useQuery } from '@/hooks';
+import { Separator } from '@/components/ui/separator';
+import { FC, ReactElement, useEffect, useState } from 'react';
 import { userQueries } from '@/api/actions/user/user.queries';
+import { BanknoteIcon as Bank, QrCode, Info } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GeneratePaymentMutationResponse } from '@/api/actions/payment/payment.types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
 
 // Inside the PaymentForm component, add:
 export const PaymentForm: FC = (): ReactElement => {
@@ -61,8 +56,7 @@ export const PaymentForm: FC = (): ReactElement => {
     if (!listening) {
       const events = new EventSource(`${ENV.API_ENDPOINT_SSE}/${accessToken}`);
 
-      events.onmessage = (event) => {
-        console.log(event.data);
+      events.onmessage = () => {
         refetch();
         toast.success('Nạp tiền thành công');
       };

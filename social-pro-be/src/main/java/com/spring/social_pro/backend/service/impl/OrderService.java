@@ -11,7 +11,10 @@ import com.spring.social_pro.backend.enums.BigCategory;
 import com.spring.social_pro.backend.enums.OrderStatus;
 import com.spring.social_pro.backend.exception.AppException;
 import com.spring.social_pro.backend.exception.ErrorCode;
+import com.spring.social_pro.backend.mapper.OrderMapper;
 import com.spring.social_pro.backend.repository.*;
+import com.spring.social_pro.backend.repository.specification.OrderSpecification;
+import com.spring.social_pro.backend.repository.specification.UserSpecification;
 import com.spring.social_pro.backend.service.IOrderService;
 import com.spring.social_pro.backend.service.ITelegramService;
 import com.spring.social_pro.backend.service.IUserService;
@@ -22,6 +25,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +47,7 @@ public class OrderService implements IOrderService {
     UserRepository userRepository;
     ITelegramService telegramService;
     RabbitMQSender rabbitMQSender;
+    OrderMapper orderMapper;
 
     // Update the createNewOrder method to send messages to RabbitMQ
     @Override
@@ -70,7 +75,7 @@ public class OrderService implements IOrderService {
 
         // Create and save the order
         Order order = Order.builder()
-                .userId(user.getId())
+                .user(user)
                 .amount(totalPrice)
                 .build();
 
@@ -106,12 +111,21 @@ public class OrderService implements IOrderService {
         Pageable pageRequest = PaginationUtil.createPageRequest(
                 request.getPage(), request.getPageSize(), request.getSortBy(), request.getSortOrder()
         );
+        UUID userId = userService.getCurrentUser().getId();
+        Specification<Order> spec = OrderSpecification.filterOrders(request.getName(), userId);
+        var orders =  orderRepository.findAll(spec, pageRequest);
+        return PageResponse.fromPage(orders, orderMapper::toOrderResponse);
 
-        String name = (request.getName() != null && !request.getName().isEmpty()) ? request.getName() : null;
+    }
 
-        var products = orderRepository.findOrders(name, categoryId, pageRequest);
-        return PageResponse.fromPage(products, productMapper::toProductResponse);
-
+    @Override
+    public OrderResponse getOrderDetail(UUID id) {
+        var order = orderRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Order not found: {}", id);
+                    return new AppException(ErrorCode.ORDER_NOT_FOUND);
+                });
+        return orderMapper.toOrderResponse(order);
     }
 
     private BigDecimal calculateTotalPrice(CreateOrderDto createOrderDto) {
@@ -157,7 +171,7 @@ public class OrderService implements IOrderService {
     private BigDecimal getPriceByItem(CreateOrderDetailDto orderDetail) {
         return switch (orderDetail.getCategory()) {
             case Product -> productRepository.findById(orderDetail.getProductId())
-                    .flatMap(product -> productDurationRepository.findByIdAndDuration(
+                    .flatMap(product -> productDurationRepository.findByProduct_IdAndDuration(
                                     orderDetail.getProductId(), orderDetail.getDuration())
                             .map(ProductDuration::getPrice))
                     .orElse(BigDecimal.ZERO);

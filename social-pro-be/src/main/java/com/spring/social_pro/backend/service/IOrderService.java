@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface IOrderService {
     UUID createNewOrder(CreateOrderDto createOrderDto);
     PageResponse<OrderResponse> getOrders(OrderFilterRequest request);
+    OrderResponse getOrderDetail(UUID id);
 }

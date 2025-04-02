@@ -28,7 +28,8 @@ public enum ErrorCode {
     INSUFFICIENT_BALANCE(1019, "Insufficient balance", HttpStatus.BAD_REQUEST),
     ORDER_DETAIL_NOT_FOUND(1020, "Order detail not found", HttpStatus.BAD_REQUEST),
     PRODUCT_NOT_FOUND(1021, "Product not found", HttpStatus.BAD_REQUEST),
-    PRODUCT_DETAIL_NOT_AVAILABLE(1022, "Product detail not available", HttpStatus.BAD_REQUEST),;
+    PRODUCT_DETAIL_NOT_AVAILABLE(1022, "Product detail not available", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_FOUND(1023, "Order not found", HttpStatus.BAD_REQUEST),;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

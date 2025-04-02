@@ -30,9 +30,14 @@ public class ProductDetail extends BaseEntity<UUID> {
     ProductStatus status = ProductStatus.NotPurchased;
 
     @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     Product product;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
+
+    @ManyToOne
+    @JoinColumn(name = "order_detail_id")
+    OrderDetail orderDetail;
 }

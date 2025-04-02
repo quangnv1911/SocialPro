@@ -7,3 +7,4 @@ export const SOCIAL_BUFF_PATH = '/social-buff';
 export const PAYMENT_PATH = '/payment';
 export const MMO_RESOURCE_PATH = '/mmo-resource';
 export const PRODUCT_PATH = '/products';
+export const WEB_SERVICE_PATH = '/web-service';

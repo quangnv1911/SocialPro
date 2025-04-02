@@ -9,8 +9,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import net.minidev.json.annotate.JsonIgnore;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "order_detail")
@@ -52,6 +51,7 @@ public class OrderDetail extends BaseEntity<UUID> {
     @JsonIgnore
     Order order;
 
-    @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL)
-    List<OrderDetailProduct> orderDetailProducts;
+    @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    Set<ProductDetail> productDetails = new HashSet<>();
+    ;
 }

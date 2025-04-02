@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 @Mapper(builder = @Builder(disableBuilder = true))
 public interface OrderMapper {
     OrderMapper INSTANCE = Mappers.getMapper(OrderMapper.class);
-    
+
+    @Mapping(source = "user.id", target = "userId")
     OrderResponse toOrderResponse(Order order);
     
     OrderDetailResponse toOrderDetailResponse(OrderDetail orderDetail);

@@ -1,9 +1,9 @@
 package com.spring.social_pro.backend.service.impl;
 
+import com.rabbitmq.client.Channel;
 import com.spring.social_pro.backend.configuration.rabbitMQ.RabbitMQConfig;
 import com.spring.social_pro.backend.dto.data.message.OrderDetailMessage;
 import com.spring.social_pro.backend.entity.OrderDetail;
-import com.spring.social_pro.backend.entity.OrderDetailProduct;
 import com.spring.social_pro.backend.entity.Product;
 import com.spring.social_pro.backend.entity.ProductDetail;
 import com.spring.social_pro.backend.enums.OrderStatus;
@@ -20,13 +20,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -40,7 +42,7 @@ public class OrderDetailService {
 
     @RabbitListener(queues = RabbitMQConfig.ORDER_QUEUE)
     @Transactional
-    public void processOrderDetail(OrderDetailMessage message) {
+    public void processOrderDetail(OrderDetailMessage message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
         log.info("Processing order detail: {}", message);
 
         try {
@@ -53,7 +55,9 @@ public class OrderDetailService {
                     log.warn("Order detail {} does not contain valid category", message.getOrderDetailId());
                 }
             }
+            channel.basicAck(tag, false);
         } catch (Exception e) {
+            channel.basicNack(tag, false, false);
             handleProcessingError(message.getOrderDetailId(), e);
         }
     }
@@ -85,33 +89,17 @@ public class OrderDetailService {
                 .findByProductIdAndStatusAndDurationOrderByCreatedAtAsc(product.getId(), ProductStatus.NotPurchased, message.getDuration())
                 .stream()
                 .limit(quantity)
-                .toList();
+                .collect(Collectors.toList());
 
-        
-        // Initialize the list if it's null
-        if (orderDetail.getOrderDetailProducts() == null) {
-            orderDetail.setOrderDetailProducts(new ArrayList<>());
-        }
-        
         // Process each product detail
-        for (ProductDetail productDetail : availableProductDetails) {
-            // Update the product detail status to purchased
+        availableProductDetails.forEach(productDetail -> {
             productDetail.setStatus(ProductStatus.Purchased);
-            productDetailRepository.save(productDetail);
-            
-            // Create the association between order detail and product detail
-            OrderDetailProduct orderDetailProduct = OrderDetailProduct.builder()
-                    .orderDetail(orderDetail)
-                    .productDetail(productDetail)
-                    .build();
-            
-            // Add to the list
-            orderDetail.getOrderDetailProducts().add(orderDetailProduct);
-            
-            log.info("Associated product detail {} with order detail {}", 
-                    productDetail.getId(), orderDetail.getId());
-        }
-        
+            productDetail.setOrderDetail(orderDetail);
+        });
+
+        orderDetail.getProductDetails().clear();
+        orderDetail.getProductDetails().addAll(availableProductDetails);
+
         // Save the order detail with the new associations
         orderDetailRepository.save(orderDetail);
         

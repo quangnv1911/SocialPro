@@ -17,7 +17,28 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue orderQueue() {
-        return new Queue(ORDER_QUEUE, true);
+        return QueueBuilder.durable(RabbitMQConfig.ORDER_QUEUE) // Đảm bảo queue chính là bền vững
+                .withArgument("x-dead-letter-exchange", "dlx-exchange") // Exchange của DLQ
+                .withArgument("x-dead-letter-routing-key", "dlq-routing-key") // Routing Key của DLQ
+                .build();
+    }
+
+    @Bean
+    public Queue deadLetterQueue() {
+        return QueueBuilder.durable("order-dead-letter-queue") // Queue DLQ
+                .build();
+    }
+
+    @Bean
+    public DirectExchange deadLetterExchange() {
+        return new DirectExchange("dlx-exchange"); // Exchange cho DLQ
+    }
+
+    @Bean
+    public Binding deadLetterBinding(Queue deadLetterQueue, DirectExchange deadLetterExchange) {
+        return BindingBuilder.bind(deadLetterQueue) // Liên kết DLQ với Exchange DLQ
+                .to(deadLetterExchange)
+                .with("dlq-routing-key"); // Routing key cho DLQ
     }
 
     @Bean

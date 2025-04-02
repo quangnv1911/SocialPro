@@ -51,7 +51,17 @@ public class OrderController {
                 .message("Order created successfully")
                 .build();
     }
-    
+
+    @GetMapping("/{id}")
+    public ApiResponse<?> getOrderDetail(@PathVariable UUID id) {
+        var order = orderService.getOrderDetail(id);
+
+        return ApiResponse.<OrderResponse>builder()
+                .status(HttpStatus.CREATED.value())
+                .data(order)
+                .message("Order created successfully")
+                .build();
+    }
     // Additional endpoints for order management can be added here
     // For example: getOrders, getOrderById, cancelOrder, etc.
 }

@@ -25,6 +25,7 @@ import { CategoryResponse } from '@/api/actions/category/category.types';
 import { categoryQueries } from '@/api/actions/category/category.queries';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PaginationWithPageSize } from '@/components/common/PaginationWithPageSize';
 const ProductsPage: FC = (): ReactElement => {
   const router = useRouter();
 
@@ -148,53 +149,13 @@ const ProductsPage: FC = (): ReactElement => {
           {/* Pagination */}
           {products && (
             <div className="mt-8 flex justify-center">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setPage((prev: number) => Math.max(prev - 1, 1))}
-                      className={page === 1 ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-
-                  {Array.from({ length: products.totalPages }).map((_, index) => {
-                    const pageNumber = index + 1;
-                    // Hiển thị trang hiện tại và các trang lân cận
-                    if (
-                      pageNumber === 1 ||
-                      pageNumber === products.totalPages ||
-                      (pageNumber >= page - 1 && pageNumber <= page + 1)
-                    ) {
-                      return (
-                        <PaginationItem key={pageNumber} className={'hover:cursor-pointer'}>
-                          <PaginationLink isActive={pageNumber === page} onClick={() => setPage(pageNumber)}>
-                            {pageNumber}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    }
-                    // Hiển thị dấu ... nếu có khoảng cách
-                    if (
-                      (pageNumber === 2 && page > 3) ||
-                      (pageNumber === products.totalPages - 1 && page < products.totalPages - 2)
-                    ) {
-                      return (
-                        <PaginationItem key={pageNumber}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      );
-                    }
-                    return null;
-                  })}
-
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setPage((prev) => Math.min(prev + 1, products.totalPages))}
-                      className={page === products.totalPages ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <PaginationWithPageSize
+                currentPage={page}
+                totalPages={products.totalPages}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Số mục mỗi trang:</span>
                 <Select onValueChange={(value) => setPageSize(Number(value))} defaultValue={pageSize.toString()}>

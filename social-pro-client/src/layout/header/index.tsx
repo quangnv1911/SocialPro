@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import UserMenu from '@/components/user-menu';
 import { Button } from '@/components/ui/button';
-import { CRONJOB_PATH, PAYMENT_PATH } from '@/utils/constants';
+import { CRONJOB_PATH, PAYMENT_PATH, WEB_SERVICE_PATH } from '@/utils/constants';
 import { useCartStore } from '@/stores/cartStore';
 import NavLink from '@/components/common/header/nav-link';
 import { Search, ShoppingCart, Menu, X, Wallet, PlusCircle } from 'lucide-react';
@@ -42,32 +42,33 @@ const Header = () => {
   };
   return (
     <header className="fixed top-0 left-0 right-0 border-b bg-white z-50 shadow-sm">
-      <div className="container mx-auto px-4 py-4 md:py-5 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl md:text-2xl font-bold">
+      <div className="container mx-auto py-4 md:py-5 flex items-center justify-between px-4">
+        <div className="flex items-center">
+          <Link href="/" className="text-xl md:text-2xl font-bold mr-4">
             Social Pro
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation - Changed from md: to lg: breakpoint */}
+          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
             <NavLink href="/">Trang chủ</NavLink>
             <NavLink href="/products">Tài khoản</NavLink>
             <NavLink href="/guide">Tài nguyên MMO</NavLink>
-            <NavLink href="/contact">Dịch vụ tăng tương tác</NavLink>
+            <NavLink href="/contact">Tăng tương tác</NavLink>
             <NavLink href={CRONJOB_PATH}>Cron job</NavLink>
+            <NavLink href={WEB_SERVICE_PATH}>Thiết kế web</NavLink>
           </nav>
         </div>
 
-        {/* Mobile menu button */}
-        <button className="md:hidden p-2 text-gray-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+        {/* Mobile/Tablet menu button - Changed from md: to lg: breakpoint */}
+        <button className="lg:hidden p-2 text-gray-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        {/* Desktop right section */}
-        <div className="hidden md:flex items-center gap-5">
+        {/* Desktop right section - Changed from md: to lg: breakpoint */}
+        <div className="hidden lg:flex items-center gap-3 xl:gap-5">
           {/* User balance display */}
           {user && (
-            <div className="bg-gray-100 rounded-full px-5 py-2 flex items-center">
+            <div className="bg-gray-100 rounded-full px-3 xl:px-5 py-2 flex items-center">
               <span className="text-sm font-medium text-gray-800">Số dư: {user?.money?.toLocaleString() || 0}đ</span>
             </div>
           )}
@@ -78,7 +79,7 @@ const Header = () => {
             <Input
               type="search"
               placeholder="Tìm kiếm..."
-              className="w-[200px] pl-8 rounded-full bg-gray-50 border-gray-200 focus-visible:ring-yellow-500 focus-visible:border-yellow-500"
+              className="w-[150px] xl:w-[200px] pl-8 rounded-full bg-gray-50 border-gray-200 focus-visible:ring-yellow-500 focus-visible:border-yellow-500"
             />
           </div>
 
@@ -110,9 +111,9 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile/Tablet menu - Changed from md: to lg: breakpoint */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white absolute w-full border-b shadow-lg z-50">
+        <div className="lg:hidden bg-white absolute w-full border-b shadow-lg z-50">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex flex-col space-y-4">
               <NavLink href="/" onClick={() => setMobileMenuOpen(false)}>
@@ -125,13 +126,17 @@ const Header = () => {
                 Tài nguyên MMO
               </NavLink>
               <NavLink href="/service" onClick={() => setMobileMenuOpen(false)}>
-                Dịch vụ tăng tương tác
+                Tăng tương tác
               </NavLink>
               <NavLink href={CRONJOB_PATH} onClick={() => setMobileMenuOpen(false)}>
                 Cron job
               </NavLink>
+              <NavLink href={WEB_SERVICE_PATH} onClick={() => setMobileMenuOpen(false)}>
+                Thiết kế web
+              </NavLink>
             </nav>
 
+            {/* Rest of the mobile menu remains the same */}
             <div className="mt-4 pt-4 border-t flex flex-col space-y-4">
               {/* Mobile search */}
               <div className="relative">
