@@ -1,6 +1,5 @@
 package com.spring.social_pro.backend.service.impl;
 
-
 import java.util.*;
 import java.time.Instant;
 
@@ -96,8 +95,10 @@ public class AuthenticationService implements IAuthenticationService {
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
-        if (!user.getEnabled()) throw new AppException(ErrorCode.USER_NOT_ENABLED);
-        if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!user.getEnabled())
+            throw new AppException(ErrorCode.USER_NOT_ENABLED);
+        if (!authenticated)
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         var token = generateToken(user);
         var refreshToken = generateRefreshToken();
@@ -132,7 +133,6 @@ public class AuthenticationService implements IAuthenticationService {
         telegramService.sendMessage(message);
     }
 
-
     public SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
         if (token == null || token.trim().isEmpty()) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -144,10 +144,10 @@ public class AuthenticationService implements IAuthenticationService {
 
         Date expiryTime = (isRefresh)
                 ? new Date(signedJWT.getJWTClaimsSet()
-                .getIssueTime()
-                .toInstant()
-                .plus(REFRESH_TOKEN_EXPIRATION, ChronoUnit.MICROS)
-                .toEpochMilli())
+                        .getIssueTime()
+                        .toInstant()
+                        .plus(REFRESH_TOKEN_EXPIRATION, ChronoUnit.MICROS)
+                        .toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         if (expiryTime.before(new Date())) {
@@ -155,7 +155,8 @@ public class AuthenticationService implements IAuthenticationService {
         }
 
         var verified = signedJWT.verify(verifier);
-        if (!verified) throw new InvalidTokenException();
+        if (!verified)
+            throw new InvalidTokenException();
 
         if (!invalidTokenRepository.existsById(UUID.fromString(signedJWT.getJWTClaimsSet().getJWTID())))
             throw new InvalidTokenException();
@@ -200,8 +201,7 @@ public class AuthenticationService implements IAuthenticationService {
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
 
-        InvalidToken invalidatedToken =
-                InvalidToken.builder().id(jit).expiryTime(expiryTime).build();
+        InvalidToken invalidatedToken = InvalidToken.builder().id(jit).expiryTime(expiryTime).build();
 
         invalidTokenRepository.save(invalidatedToken);
         Activity activity = Activity.builder()
@@ -238,10 +238,8 @@ public class AuthenticationService implements IAuthenticationService {
         String verificationLink = String.format(
                 "http://localhost:5000/verify-account?account=%s&otp=%s",
                 newUser.getEmail(),
-                otp
-        );
+                otp);
         emailService.sendWelcomeEmail(newUser.getEmail(), newUser.getUserName(), verificationLink);
-
 
         String message = registerRequest.getEmail() + " has registered your account";
         activityService.addActivity(ActivityType.Register, message, request);
@@ -249,7 +247,6 @@ public class AuthenticationService implements IAuthenticationService {
         telegramService.sendMessage(message);
         return "User registered successfully";
     }
-
 
     private static String generateRefreshToken() {
         int byteLength = 10;
@@ -265,6 +262,5 @@ public class AuthenticationService implements IAuthenticationService {
         calendar.add(Calendar.MILLISECOND, Integer.parseInt(timeValid));
         return calendar.getTime();
     }
-
 
 }
