@@ -1,5 +1,6 @@
 package com.spring.social_pro.backend.dto.response.authen;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,7 +11,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticateResponse {
-    String token;
+    String refreshToken;
+    String accessToken;
+    String userName;
+    String email;
+    String image;
     String role;
-    boolean authenticated;
+    @JsonProperty(value = "isAuthenticated")
+    boolean isAuthenticated;
 }

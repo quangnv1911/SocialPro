@@ -1,69 +1,93 @@
+// Root Jenkinsfile for the project
+
 pipeline {
     agent any
-
     environment {
-        REGISTRY = credentials('DOCKER_REGISTRY')
-        DOCKER_USER = credentials('DOCKER_USER')
-        DOCKER_PASS = credentials('DOCKER_PASS')
-        DEPLOY_PATH_STAGING = credentials('DEPLOY_PATH_STAGING')
-        DEPLOY_PATH_PRODUCTION = credentials('DEPLOY_PATH_PRODUCTION')
+        DOCKER_BUILDKIT = '1'
+        TAG = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0, 7)}"
     }
-
     stages {
-
-        stage('Clone Repository') {
+        stage('Load .env file') {
             steps {
-                script {
-                    echo "📂 Cloning repository on branch: ${env.BRANCH_NAME}"
-                }
-                git branch: env.BRANCH_NAME, url: 'https://github.com/quangnv1911/SocialPro.git'
-            }
-        }
-
-        stage('Determine Environment') {
-            steps {
-                script {
-                    if (env.BRANCH_NAME == 'dev') {
-                        env.DEPLOY_PATH = "${env.DEPLOY_PATH_STAGING}"
-                        env.DOCKER_COMPOSE_FILE = "docker-compose.staging.yml"
-                    } else if (env.BRANCH_NAME == 'main') {
-                        env.DEPLOY_PATH = "${env.DEPLOY_PATH_PRODUCTION}"
-                        env.DOCKER_COMPOSE_FILE = "docker-compose.production.yml"
-                    } 
-                }
-            }
-        }
-
-        stage('Login to Docker Registry') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh """
-                        docker login -u $DOCKER_USER -p $DOCKER_PASS $REGISTRY
-                    """
-                }
-            }
-        }
-
-        stage('Build & Push Docker Images') {
-            steps {
-                script {
-                    def services = ["social-pro-client", "social-pro-admin", "social-pro-be", "email-proxy"]
-
-                    services.each { service ->
-                        sh """
-                            docker build -t $REGISTRY/$service:${env.BRANCH_NAME} -f $service/Dockerfile $service
-                            docker push $REGISTRY/$service:${env.BRANCH_NAME}
-                        """
+                withCredentials([file(credentialsId: 'env-jenkins', variable: 'ENV_FILE')]) {
+                    script {
+                        def props = readProperties file: env.ENV_FILE
+                        env.STAGING_SERVER_IP = props['STAGING_SERVER_IP']
+                        env.STAGING_SSH_USER = props['STAGING_SSH_USER']
+                        env.PROD_SERVER_IP = props['PROD_SERVER_IP']
+                        env.PROD_SSH_USER = props['PROD_SSH_USER']
+                        env.STAGING_DEPLOY_DIR = props['STAGING_DEPLOY_DIR']
+                        env.PROD_DEPLOY_DIR = props['PROD_DEPLOY_DIR']
                     }
                 }
             }
         }
 
-        stage('Deploy to Server') {
+        stage('Check branch') {
+            steps {
+                echo "${env.GIT_BRANCH}"
+            }
+        }
+        stage('Trigger Projects') {
+            parallel {
+                stage('Trigger Social Pro Backend Project') {
+                    steps {
+                        build job: 'social-pro-be', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
+                stage('Trigger Social Pro Admin Project') {
+                    steps {
+                        build job: 'social-pro-admin', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
+                stage('Trigger Social Pro Client Project') {
+                    steps {
+                        build job: 'social-pro-client', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
+                stage('Trigger Email proxy Project') {
+                    steps {
+                        build job: 'email-proxy', parameters: [string(name: 'BRANCH_NAME', value: env.GIT_BRANCH), string(name: 'TAG', value: TAG)]
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to staging') {
+            when {
+                expression {
+                    env.GIT_BRANCH == 'dev'
+                }
+            }
+            steps {
+                // script {
+                //     sshagent(credentials : ['staging-social-pro-ssh']) {
+                //         sh """
+                //             ssh -o StrictHostKeyChecking=no ${STAGING_SSH_USER}@${STAGING_SERVER_IP} 'cd ${STAGING_DEPLOY_DIR} && ./deploy.sh'
+                //         """
+                //     }
+                // }
+                script {
+                    // Make the POST request using curl
+                    sh '''
+                        curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_98g22o5YUFVHlKOzj9vKPTyN2SDG/tKybBxqhQs
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to production') {
+            when {
+                expression {
+                    env.GIT_BRANCH == 'main'
+                }
+            }
             steps {
                 script {
-                    if (env.DEPLOY_PATH) {
-                        sh "docker-compose -f $DOCKER_COMPOSE_FILE up -d --remove-orphans" 
+                    sshagent(credentials : ['prod-social-pro-ssh']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${PROD_SSH_USER}@${PROD_SERVER_IP} 'cd ${PROD_DEPLOY_DIR} && ./deploy.sh'
+                        """
                     }
                 }
             }
@@ -71,8 +95,50 @@ pipeline {
     }
 
     post {
-        always {
-            echo "CI/CD Pipeline hoàn tất cho branch: ${env.BRANCH_NAME}"
+        success {
+            script {
+                withCredentials([
+                string(credentialsId: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN', variable: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN'),
+                string(credentialsId: 'JENKINS_TELEGRAM_CHAT', variable: 'JENKINS_TELEGRAM_CHAT')
+                ]) {
+                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/job/${env.BUILD_NUMBER}/"
+                    def message = "✅ *Build Successful!* 🎉\n" +
+                                "Project: `${env.JOB_NAME}`\n" +
+                                "Branch: `${env.GIT_BRANCH}`\n" +
+                                "Tag: `${env.TAG}`\n" +
+                                "🔗 [View Build](${buildUrl})"
+
+                    sh '''
+                        curl -s -X POST "https://api.telegram.org/bot${SOCIAL_PRO_TELEGRAM_BOT_TOKEN}/sendMessage" \
+                        -d chat_id="${JENKINS_TELEGRAM_CHAT}" \
+                        -d parse_mode="Markdown" \
+                        -d text="${message}"
+                    '''
+                }
+            }
+        }
+
+        failure {
+            script {
+                withCredentials([
+                string(credentialsId: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN', variable: 'SOCIAL_PRO_TELEGRAM_BOT_TOKEN'),
+                string(credentialsId: 'JENKINS_TELEGRAM_CHAT', variable: 'JENKINS_TELEGRAM_CHAT')
+                ]) {
+                    def buildUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/job/${env.BUILD_NUMBER}/"
+                    def message = "❌ *Build Failed!* 😞\n" +
+                                "Project: ${env.JOB_NAME}\n" +
+                                "Branch: ${env.GIT_BRANCH}\n" +
+                                "Tag: ${env.TAG}\n" +
+                                "🔗 [View Build](${buildUrl})"
+
+                    sh '''
+                        curl -s -X POST "https://api.telegram.org/bot${SOCIAL_PRO_TELEGRAM_BOT_TOKEN}/sendMessage" \
+                        -d chat_id="${JENKINS_TELEGRAM_CHAT}" \
+                        -d parse_mode="Markdown" \
+                        -d text="${message}"
+                    '''
+                }
+            }
         }
     }
 }

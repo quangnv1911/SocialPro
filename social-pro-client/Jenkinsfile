@@ -1,0 +1,58 @@
+// Jenkinsfile của email proxy
+
+pipeline {
+    agent any
+    environment {
+        // DOCKER_BUILDKIT='1'
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+    parameters {
+        string(name: 'BRANCH_NAME')
+        string(name: 'TAG')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: params.BRANCH_NAME,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
+             
+                
+            }
+        }
+        stage('Install Dependencies') {
+          steps {
+            nodejs(nodeJSInstallationName: 'node22') {
+            dir('social-pro-client') {
+                sh 'npm install'
+            }
+            }
+          }
+        }
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    dir('social-pro-client') {
+                        sh "$SCANNER_HOME/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
+         stage('Docker Push Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('social-pro-client') {
+                            try{
+                                sh "docker build -t quangnv1911/social-pro-client:${TAG} ."
+                                sh "docker push quangnv1911/social-pro-client:${TAG}"
+                            } finally {
+                                sh """docker rmi -f \$(docker images 'quangnv1911/social-pro-client' -q) || true"""
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

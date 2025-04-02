@@ -4,16 +4,19 @@ import {
   GetUsersResponse,
   LoginMutationArguments,
   LoginMutationResponse,
-} from 'api/actions/auth/auth.types';
+} from '@/api/actions/auth/auth.types';
 import { http } from './http';
 
 const authorizeHandler = http.post<LoginMutationArguments, never, LoginMutationResponse>('/authorize', async () =>
   HttpResponse.json(
     {
       accessToken: 'MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3',
-      tokenType: 'bearer',
-      expires: 123,
       refreshToken: 'IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk',
+      isAuthenticated: true,
+      role: 'User',
+      userName: 'quangnv1911',
+      email: 'quangnv1911@gmail.com',
+      image: 'link anh',
     },
     { status: 200 },
   ),
@@ -23,7 +26,7 @@ const meHandler = http.get<PathParams, DefaultBodyType, GetMeQueryResponse>('/me
     {
       firstName: 'Mike',
       lastName: 'Tyson',
-      username: 'mike',
+      userName: 'mike',
     },
     { status: 200 },
   ),

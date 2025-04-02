@@ -1,0 +1,56 @@
+name: Unit Tests
+
+on:
+  workflow_call:
+    inputs:
+      project_dirs:
+        description: 'Danh sách thư mục dự án Javascript (cách nhau bởi dấu phẩy) cho unit tests'
+        required: true
+        type: string
+      spring_project_dirs:
+        description: 'Danh sách thư mục dự án Spring (cách nhau bởi dấu phẩy) cho unit tests'
+        required: true
+        type: string
+
+jobs:
+  unit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Unit Tests for Non-Spring Projects
+        shell: bash
+        run: |
+          echo "Chạy unit tests cho non-spring projects: ${{ inputs.project_dirs }}"
+          IFS=',' read -ra DIRS <<< "${{ inputs.project_dirs }}"
+          for dir in "${DIRS[@]}"; do
+            echo ">>> Đang chạy unit tests tại: $dir"
+            cd "$dir"
+            npm install
+            npm run test || EXIT_CODE=1
+            cd -
+          done
+          exit $EXIT_CODE
+
+      - name: Setup Java 21 for Spring Projects
+        if: ${{ inputs.spring_project_dirs != '' }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Run Unit Tests for Spring Projects
+        if: ${{ inputs.spring_project_dirs != '' }}
+        shell: bash
+        run: |
+          echo "Chạy unit tests cho Spring projects: ${{ inputs.spring_project_dirs }}"
+          IFS=',' read -ra SPRING_DIRS <<< "${{ inputs.spring_project_dirs }}"
+          for dir in "${SPRING_DIRS[@]}"; do
+            echo ">>> Đang chạy unit tests tại: $dir"
+            cd "$dir"
+            chmod +x ./mvnw
+            ./mvnw test || EXIT_CODE=1
+            cd -
+          done
+          exit $EXIT_CODE

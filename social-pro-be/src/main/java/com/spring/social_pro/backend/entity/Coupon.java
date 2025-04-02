@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "coupon")
 @Setter
@@ -15,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Coupon  extends BaseEntity {
+public class Coupon  extends BaseEntity<UUID> {
     @Column(name = "code", nullable = false)
     String code;
 

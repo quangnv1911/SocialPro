@@ -1,6 +1,9 @@
 package com.spring.social_pro.backend.configuration.openApi;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.apache.tomcat.websocket.BasicAuthenticator.schemeName;
 
 @Configuration
 @ConfigurationProperties(prefix = "openapi")
@@ -44,9 +49,23 @@ public class OpenAPIConfig {
         private String description;
     }
 
+    String bearerFormat = "JWT";
+    String scheme = "bearer";
+
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement()
+                        .addList(schemeName)).components(new Components()
+                        .addSecuritySchemes(
+                                schemeName, new SecurityScheme()
+                                        .name(schemeName)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .bearerFormat(bearerFormat)
+                                        .in(SecurityScheme.In.HEADER)
+                                        .scheme(scheme)
+                        )
+                )
                 .info(new io.swagger.v3.oas.models.info.Info()
                         .title(info.getTitle())
                         .version(info.getVersion())

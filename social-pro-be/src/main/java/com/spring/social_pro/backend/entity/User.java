@@ -9,8 +9,11 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "user")
@@ -21,7 +24,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User extends BaseEntity {
+public class User extends BaseEntity<UUID> {
 
     @Column(name = "email", nullable = false, unique = true)
     @NotNull
@@ -38,7 +41,8 @@ public class User extends BaseEntity {
     String avatar;
 
     @Column(name = "money")
-    String money;
+    @Builder.Default
+    BigDecimal money = BigDecimal.ZERO;
 
     @Column(name = "phone")
     String phone;
@@ -60,9 +64,16 @@ public class User extends BaseEntity {
     LocalDateTime otpExpiryDate;
 
     @Column(name = "enabled")
-    Boolean enabled;
+    @Builder.Default
+    Boolean enabled = false;
+
+    @Column(name = "api_key")
+    String apiKey;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     Role role;
+
+    @OneToMany
+    Set<ProductDetail> productDetails;
 }

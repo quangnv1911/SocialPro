@@ -1,12 +1,15 @@
 package com.spring.social_pro.backend.configuration.security;
 
 import com.spring.social_pro.backend.filter.CustomJwtAuthFilter;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,15 +23,22 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfiguration {
 
-//    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    //    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final CustomJwtDecoder jwtDecoder;
-
+    private final CustomJwtAuthFilter customJwtAuthFilter;
     private static final String[] PUBLIC_ENDPOINT = {
-            "/api/v1/auth/token",
-            "/api/v1/Auth/authen",
-
+            "/api/v1/auth/**",
+            "/api/v1/captcha/**",
+            "/api/v1/payment/**",
+            "/api/v1/notify/**",
+            "/api/v1/job/**",
+            "/api/v1/order/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/swagger-ui/",
     };
 
     @Bean
@@ -43,10 +53,17 @@ public class SecurityConfiguration {
                         .requestMatchers(PUBLIC_ENDPOINT).permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAuthority("ADMIN") // Chỉ cho phép quyền ADMIN truy cập vào /api/v1/admin/**
                         .anyRequest().authenticated())
-                .addFilterBefore(new CustomJwtAuthFilter(), BearerTokenAuthenticationFilter.class)
+                .addFilterBefore(customJwtAuthFilter, BearerTokenAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+                "/swagger-ui/**", "/v3/api-docs/**"
+        );
     }
 
     @Bean

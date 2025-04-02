@@ -1,7 +1,10 @@
 const ENV = {
-  GOOGLE_CLIENT_KEY: import.meta.env.PUBLIC_ENV__META__GOOGLE_CLIENT_KEY as string,
-  SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN as string,
-  BASE_URL: import.meta.env.VITE_API_URL as string,
+  GOOGLE_CLIENT_KEY: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_KEY as string,
+  SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN as string,
+  BASE_URL: process.env.NEXT_PUBLIC_BASE_URL as string,
+  API_ENDPOINT: process.env.NEXT_PUBLIC_API_ENDPOINT as string,
+  API_ENDPOINT_SSE: process.env.NEXT_PUBLIC_API_ENDPOINT_SSE as string,
 };
+
 
 export { ENV };

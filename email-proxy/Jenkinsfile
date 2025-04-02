@@ -1,0 +1,55 @@
+// Jenkinsfile của email proxy
+
+pipeline {
+    agent any
+    environment {
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+    parameters {
+        string(name: 'BRANCH_NAME')
+        string(name: 'TAG')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: params.BRANCH_NAME,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'    
+            }
+        }
+        stage('Install Dependencies') {
+          steps {
+            nodejs(nodeJSInstallationName: 'node22') {
+            dir('email-proxy') {
+                sh 'npm install'
+            }
+            }
+          }
+        }
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    dir('email-proxy') {
+                        sh "$SCANNER_HOME/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
+         stage('Docker Push Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('email-proxy') {
+                            try{
+                                sh "docker build -t quangnv1911/email-proxy:${TAG} ."
+                                sh "docker push quangnv1911/email-proxy:${TAG}"
+                            } finally{
+                                sh """docker rmi -f \$(docker images 'quangnv1911/email-proxy' -q) || true"""
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

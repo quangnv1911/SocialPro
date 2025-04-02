@@ -1,0 +1,47 @@
+name: Sonar Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+        project_dirs:
+            required: true
+            type: string  
+    secrets:
+        SONAR_TOKEN:
+            required: true
+        SONAR_HOST_URL:
+            required: true
+            
+jobs:
+  sonar-analysis:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project-dir: ${{ fromJson(inputs.project_dirs) }}  # Chuyển chuỗi thành array
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21 for Spring Projects
+        if: ${{ matrix.project-dir == './social-pro-be' }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'  
+
+      - name: Build Spring project
+        if: ${{ matrix.project-dir == './social-pro-be' }}
+        run: mvn clean install -DskipTests
+        working-directory: ./social-pro-be
+      
+
+      - name: Set up SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: ${{ matrix.project-dir }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+

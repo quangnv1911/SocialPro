@@ -1,0 +1,63 @@
+// Jenkinsfile của social-pro-be
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'mvn-3.9.9'
+        jdk 'jdk 21'
+    }
+
+    environment {
+        // DOCKER_BUILDKIT='1'
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
+    parameters {
+        string(name: 'BRANCH_NAME')
+        string(name: 'TAG')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "${params.BRANCH_NAME}"
+                git branch: params.BRANCH_NAME,credentialsId: 'github-credentials', url: 'https://github.com/quangnv1911/SocialPro.git'
+             
+                
+            }
+        }
+        stage('Clean install') {
+            steps {
+                dir('social-pro-be') {
+                    sh 'mvn clean install -DskipTests'
+                }
+            }
+        }
+        stage('Sonarqube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    dir('social-pro-be') {
+                        sh "$SCANNER_HOME/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
+         stage('Docker Push Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                        dir('social-pro-be') {
+                            try{
+                                sh "docker build -t quangnv1911/social-pro-be:${TAG} ."
+                                sh "docker push quangnv1911/social-pro-be:${TAG}"
+                            } finally{
+                                sh """docker rmi -f \$(docker images 'quangnv1911/social-pro-be' -q)"""
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

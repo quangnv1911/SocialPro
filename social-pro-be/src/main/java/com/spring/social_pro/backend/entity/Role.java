@@ -9,6 +9,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "role")
@@ -18,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Role extends BaseEntity {
+public class Role extends BaseEntity<UUID> {
 
     @Column(name = "role_name", nullable = false)
     String roleName;
