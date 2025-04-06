@@ -7,12 +7,12 @@ export const useHandleQueryErrors = () => {
   const handleErrors = (error: StandardizedApiError) => {
     if (isServerError(error.statusCode)) {
       // show translated error message in toast/snackbar
-      logger.error(error.originalError.message);
+      logger.error(typeof error.originalError === 'string' ? error.originalError : error.originalError.message);
     }
 
     if (isClientError(error.statusCode)) {
       // show translated error message in toast/snackbar
-      logger.error(error.originalError.message);
+      logger.error(typeof error.originalError === 'string' ? error.originalError : error.originalError.message);
     }
   };
 

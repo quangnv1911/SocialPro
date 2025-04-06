@@ -64,7 +64,7 @@ export const OrderList = () => {
         <h1 className="text-2xl font-bold">Đơn hàng của tôi</h1>
       </div>
 
-      {orders.length === 0 ? (
+      {orders?.length === 0 ? (
         <Card className="p-12 text-center">
           <div className="flex flex-col items-center justify-center">
             <ShoppingBag className="h-16 w-16 text-gray-300 mb-4" />

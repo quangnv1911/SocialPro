@@ -51,7 +51,7 @@ const usersHandler = http.get<PathParams, DefaultBodyType, GetUsersResponse>('/u
 
   const start = (page - 1) * count;
   const end = start + count;
-  const nextPageCursor = end >= allUsers.length ? null : page + 1;
+  const nextPageCursor = end >= allUsers?.length ? null : page + 1;
   const paginatedUsers = allUsers.slice(start, end);
 
   return HttpResponse.json({ users: paginatedUsers, nextPage: nextPageCursor }, { status: 200 });

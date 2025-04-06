@@ -23,7 +23,7 @@ export const OrderCard = ({ order, onClick }: OrderCardProps) => {
           </div>
           <div className="flex items-center">
             <Package className="h-4 w-4 mr-2 text-gray-500" />
-            <span className="text-sm text-gray-600">{order.orderDetails.length} sản phẩm</span>
+            <span className="text-sm text-gray-600">{order.orderDetails?.length} sản phẩm</span>
           </div>
         </div>
 

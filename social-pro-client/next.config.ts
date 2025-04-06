@@ -23,19 +23,13 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  metadata: {
-    title: 'Social Pro',
-    description: 'The best place for social media growth services',
-  },
+  productionBrowserSourceMaps: true, 
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'debug'] } : false,
-  },
-  devIndicators: {
-    appIsrStatus: false,
-  },
+  // compiler: {
+  //   removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'debug'] } : false,
+  // },
   experimental: {
     turbo: {
       rules: {
@@ -82,8 +76,7 @@ const nextConfig: NextConfig = {
   },
   output: 'standalone',
   poweredByHeader: false,
-  productionBrowserSourceMaps: false,
-  reactStrictMode: true,
+  reactStrictMode: false,
   eslint: {
     ignoreDuringBuilds: true, // Tắt ESLint trong quá trình build
   },

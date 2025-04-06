@@ -6,7 +6,7 @@ services:
       context: ../../social-pro-client
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "5000:5000"
     env_file:
       - .env.production  
 
@@ -27,7 +27,7 @@ services:
       context: ../../social-pro-be
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8084:8084"
     restart: always
     networks:
       - social-pro-network
@@ -41,7 +41,7 @@ services:
       context: ../../email-proxy
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "3004:3004"
     env_file:
       - .env.production
     

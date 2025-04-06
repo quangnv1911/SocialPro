@@ -95,7 +95,7 @@ export const OrderDetailContent = ({
           <div className="mt-6">
             <h5 className="font-medium text-sm text-gray-700 mb-3 flex items-center">
               <FileText className="h-4 w-4 mr-1" />
-              Chi tiết sản phẩm ({detail.productDetails.length})
+              Chi tiết sản phẩm ({detail.productDetails?.length})
             </h5>
             <div className="bg-gray-50 rounded-lg p-3">
               <div className="space-y-3">

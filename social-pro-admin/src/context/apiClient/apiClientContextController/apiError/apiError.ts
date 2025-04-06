@@ -55,27 +55,23 @@ export const getStandardizedApiError = (
     data: errorData || null,
   };
 
-  console.log('Standardized error:', JSON.stringify(standardizedError, null, 2));
-
   try {
     if (isBasicErrorData(errorData)) {
-      console.log('Detected basic error');
       return new ApiError(
         {
           ...standardizedError,
-          type: 'basic',
-          data: errorData.error.message || 'Unknown basic error',
+          type: 'basic' as const,
+          data: { error: { code: errorData.error.code, message: errorData.error.message } },
         } as BasicApiError,
         errorData.error.message || 'Unknown basic error',
       );
     }
 
     if (isFormErrorData(errorData)) {
-      console.log('Detected form error');
       return new ApiError({
         ...standardizedError,
-        type: 'form',
-        data: errorData.errors,
+        type: 'form' as const,
+        data: { errors: errorData.errors },
       } as FormApiError);
     }
 

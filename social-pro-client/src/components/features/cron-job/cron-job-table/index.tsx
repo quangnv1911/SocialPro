@@ -120,7 +120,7 @@ export const JobHistoryTable: FC = (): ReactNode => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cronJobList?.data.length > 0 ? (
+                {cronJobList?.data?.length > 0 ? (
                   cronJobList.data.map((job: CronJobResponse, index: number) => (
                     <TableRow key={job.name}>
                       <TableCell className="text-center font-medium">

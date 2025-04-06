@@ -112,7 +112,7 @@ const ProductsPage: FC = (): ReactElement => {
         <div className="flex justify-center items-center h-64">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      ) : products?.data.length === 0 ? (
+      ) : products?.data?.length === 0 ? (
         <EmptyIcon emptyEntity="Sản phẩm" />
       ) : (
         <>

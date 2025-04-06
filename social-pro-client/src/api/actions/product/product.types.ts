@@ -13,6 +13,7 @@ export type ProductResponse = {
   quantity: number;
   image: string;
   createdAt: string;
+  price: number;
   durations: ProductDurationResponse[];
 };
 

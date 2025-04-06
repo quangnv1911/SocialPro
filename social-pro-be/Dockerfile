@@ -31,7 +31,7 @@ COPY --from=build /app/target/*.jar /app/app.jar
 WORKDIR /app
 
 # Expose the application port
-EXPOSE 8080
+EXPOSE 8084
 
 # Configure JVM options (can be overridden via environment variables)
 ENV JAVA_OPTS="-Xmx2048m -Xms256m"

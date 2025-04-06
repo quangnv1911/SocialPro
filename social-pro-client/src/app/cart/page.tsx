@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import { DURATION_LABELS, DurationEnum } from '@/utils/constants/duration';
+import { DURATION_LABELS } from '@/utils/constants/duration';
 import { Separator } from '@/components/ui/separator';
 import userStore from '@/stores/userStore';
 import { toast } from 'react-toastify';
 import { useMutation } from '@/hooks';
-import { CreateOrderMutationArguments, OrderCreateResponse } from '@/api/actions/order/order.types';
+import { CreateOrderMutationArguments } from '@/api/actions/order/order.types';
 import { StandardizedApiError } from '@/context/apiClient/apiClientContextController/apiError/apiError.types';
 import { BigCategory } from '@/utils/constants/bigCategory';
 
@@ -24,7 +24,7 @@ const CartPage: FC = (): ReactElement => {
 
   const { user } = userStore();
 
-  const { mutateAsync: createOrder, isPending: isOrdering } = useMutation('createOrderMutation', {
+  const { mutateAsync: createOrder } = useMutation('createOrderMutation', {
     onSuccess: () => {
       toast.success('Đặt hàng thành công');
     },
@@ -59,7 +59,7 @@ const CartPage: FC = (): ReactElement => {
     });
   };
 
-  if (items.length === 0) {
+  if (items?.length === 0) {
     return (
       <div className="container mx-auto py-12 text-center">
         <h1 className="text-2xl font-bold mb-6">Giỏ hàng của bạn</h1>
@@ -106,11 +106,11 @@ const CartPage: FC = (): ReactElement => {
               </div>
 
               {items.map((item) => (
-                <div key={`${item.product.id}-${item.duration}`} className="border-t py-4">
+                <div key={`${item.product?.id}-${item.duration}`} className="border-t py-4">
                   <div className="flex items-start gap-4">
                     <div className="w-20 h-20 relative bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
-                      {item.product.image ? (
-                        <Image src={item.product.image} alt={item.product.name} fill className="object-contain p-2" />
+                      {item.product?.image ? (
+                        <Image src={item.product?.image} alt={item.product.name} fill className="object-contain p-2" />
                       ) : (
                         <div className="flex items-center justify-center h-full">
                           <span className="text-gray-400 text-xs">No image</span>
@@ -121,13 +121,13 @@ const CartPage: FC = (): ReactElement => {
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <div>
-                          <h3 className="font-medium">{item.product.name}</h3>
+                          <h3 className="font-medium">{item.product?.name}</h3>
                           <p className="text-sm text-gray-500">Thời hạn: {DURATION_LABELS[item.duration]}</p>
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeFromCart(item.product.id)}
+                          onClick={() => removeFromCart(item.product?.id ?? '')}
                           className="text-red-500 h-8 w-8 p-0"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -140,7 +140,7 @@ const CartPage: FC = (): ReactElement => {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
+                            onClick={() => handleQuantityChange(item.product?.id ?? '', item.quantity - 1)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -149,7 +149,7 @@ const CartPage: FC = (): ReactElement => {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
+                            onClick={() => handleQuantityChange(item.product?.id ?? '', item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>

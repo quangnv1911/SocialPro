@@ -82,7 +82,7 @@ export const ProductDetailModal = ({ isOpen, onOpenChange, productDetail }: Prod
         // Handle objects and arrays
         if (typeof value === 'object') {
           if (Array.isArray(value)) {
-            return value.length > 0 ? (
+            return value?.length > 0 ? (
               <div className="mt-2 pl-2 border-l-2 border-gray-200">
                 {value.map((item, idx) => (
                   <div key={idx} className="mb-2">
