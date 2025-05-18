@@ -9,7 +9,6 @@ import { usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
-import UserDataFetcher from '@/components/common/userDataFetcher';
 
 const LayoutComponent = ({
   children,
