@@ -1,5 +1,6 @@
 server:
   port: ${SPRING_PORT:8084}
+  address: ${SPRING_ADDRESS:0.0.0.0}
 
 spring:
   application:
@@ -12,7 +13,7 @@ spring:
       password: ${SPRING_SECURITY_USER_PASSWORD}
     roles: ${SPRING_SECURITY_ROLES:ACTUATOR}
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    jdbc-url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER:com.mysql.cj.jdbc.Driver}
