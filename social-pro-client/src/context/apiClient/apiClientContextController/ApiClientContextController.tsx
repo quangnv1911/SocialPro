@@ -12,8 +12,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 const metaErrorConfig = { error: { showGlobalError: true, excludedCodes: [] } };
 
 const ApiClientContextController: FC<ApiClientControllerProps> = ({
-                                                                    children,
-                                                                  }: ApiClientControllerProps): ReactNode => {
+  children,
+}: ApiClientControllerProps): ReactNode => {
   const { handleErrors, shouldHandleGlobalError } = useHandleQueryErrors();
 
   const mutationCache = new MutationCache({
@@ -46,14 +46,12 @@ const ApiClientContextController: FC<ApiClientControllerProps> = ({
   );
 
   const ctx = useMemo(() => ({ client: axiosClient }), []);
-
   return (
     <ApiClientContext.Provider value={ctx}>
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary>{children}</HydrationBoundary>
         <ReactQueryDevtools />
       </QueryClientProvider>
-
     </ApiClientContext.Provider>
   );
 };

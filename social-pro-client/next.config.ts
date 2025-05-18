@@ -1,13 +1,13 @@
 import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
-import { createJiti, Jiti } from 'jiti';
+import { createJiti } from 'jiti';
 import bundleAnalyzer from '@next/bundle-analyzer';
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const jiti: Jiti = createJiti(fileURLToPath(import.meta.url));
+const jiti = createJiti(fileURLToPath(import.meta.url));
 
 jiti.esmResolve('./src/config/env.ts');
 
@@ -23,7 +23,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  productionBrowserSourceMaps: true, 
+  productionBrowserSourceMaps: true,
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
