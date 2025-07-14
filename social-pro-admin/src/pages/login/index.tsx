@@ -35,12 +35,15 @@ const LoginScreen: FC = (): ReactNode => {
     },
   });
 
-  const { refetch: getCaptchaValue } = useQuery({
+  const { data ,refetch: getCaptchaValue } = useQuery({
     ...captchaQueries.get(),
   });
 
   const { mutateAsync: login, isPending: isAuthenticating } = useMutation('loginMutation', {
     onSuccess: (res: LoginMutationResponse) => {
+      console.log(res);
+
+
       toast.success('Đăng nhập thành công');
       setAuthData(res.accessToken, res.refreshToken, res.role, res.userName, res.email, res.image, res.isAuthenticated);
     },

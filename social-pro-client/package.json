@@ -6,7 +6,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS='--inspect' next dev -p 5000",
+    "dev": "dotenv -e .env -- next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -85,6 +85,7 @@
     "@welldone-software/why-did-you-render": "^8.0.3",
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.16",
     "eslint-config-prettier": "9.1.0",
